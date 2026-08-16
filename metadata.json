@@ -1,0 +1,6 @@
+{
+  "name": "Aevum Institutional Digital Assets",
+  "description": "Institutional-grade digital asset infrastructure, MPC custody, algorithmic settlement, and prime treasury management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
