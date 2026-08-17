@@ -26,12 +26,36 @@ import {
   Sparkles,
   Maximize2
 } from 'lucide-react';
+import {
+  WalletIllustration,
+  NetworkIllustration,
+  TransparencyIllustration
+} from './illustrations/ArchitecturalIllustrations';
 
 interface PlatformOverviewProps {
   onOpenAccessRequest: () => void;
 }
 
 type CapabilityId = 'wallet' | 'network' | 'analytics';
+
+/**
+ * Renders the large hero-quality 3D product illustration for a capability tile,
+ * drawn from the shared architectural illustration family for a consistent visual DNA.
+ */
+const renderCapabilityIllustration = (id: CapabilityId) => {
+  switch (id) {
+    case 'wallet':
+      return <WalletIllustration size="md" />;
+    case 'network':
+      return <NetworkIllustration size="md" />;
+    case 'analytics':
+      return <TransparencyIllustration size="md" />;
+    default: {
+      const _exhaustive: never = id;
+      return _exhaustive;
+    }
+  }
+};
 
 export const PlatformOverview: React.FC<PlatformOverviewProps> = ({
   onOpenAccessRequest,
@@ -759,6 +783,22 @@ export const PlatformOverview: React.FC<PlatformOverviewProps> = ({
                     cap.id === 'wallet' ? 'from-amber-500 to-amber-300' : cap.id === 'network' ? 'from-blue-600 to-indigo-400' : 'from-cyan-500 to-teal-300'
                   }`} />
                 )}
+
+                {/* Major Product Visual: Large Shared 3D Illustration */}
+                <div className={`relative flex items-center justify-center h-44 sm:h-48 mb-6 rounded-2xl border overflow-hidden transition-colors duration-300 ${
+                  isSelected ? `${cap.accentBorder} bg-[#0a0f1c]` : 'border-slate-800/70 bg-[#070a12]/70'
+                }`}>
+                  {/* Isometric ambient grid + focal glow */}
+                  <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px] opacity-20 pointer-events-none" />
+                  <div className={`absolute -inset-6 rounded-full blur-3xl pointer-events-none transition-opacity duration-500 ${
+                    cap.id === 'wallet' ? 'bg-amber-500/10' : cap.id === 'network' ? 'bg-blue-600/12' : 'bg-cyan-500/12'
+                  } ${isSelected ? 'opacity-100' : 'opacity-60'}`} />
+
+                  {/* Subtle interactive motion: gentle lift + scale on hover */}
+                  <div className="relative z-10 transition-transform duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-1">
+                    {renderCapabilityIllustration(cap.id)}
+                  </div>
+                </div>
 
                 <div className="space-y-4 mb-6">
                   {/* Icon & Monospace Badge */}
