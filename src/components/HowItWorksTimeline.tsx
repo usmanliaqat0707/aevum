@@ -258,16 +258,18 @@ export const HowItWorksTimeline: React.FC<HowItWorksTimelineProps> = ({ onOpenAc
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center gap-2 pt-2">
+                <div className="flex flex-col items-center gap-0.5 pt-2">
                   {STEPS.map((s, i) => (
                     <button
                       key={s.stepNumber}
                       onClick={() => scrollToStep(i)}
                       aria-label={`Go to step ${s.stepNumber}`}
-                      className={`rounded-full transition-all duration-300 cursor-pointer ${
-                        i === activeStepIndex ? `${ACCENT[s.accent].dot} h-6 w-1.5` : 'bg-slate-700 hover:bg-slate-500 h-1.5 w-1.5'
-                      }`}
-                    />
+                      className="group/dot flex items-center justify-center p-2 cursor-pointer"
+                    >
+                      <span className={`block rounded-full transition-all duration-300 ${
+                        i === activeStepIndex ? `${ACCENT[s.accent].dot} h-6 w-1.5` : 'bg-slate-700 group-hover/dot:bg-slate-500 h-1.5 w-1.5'
+                      }`} />
+                    </button>
                   ))}
                 </div>
               </div>
