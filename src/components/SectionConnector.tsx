@@ -42,8 +42,9 @@ const renderVariant = (variant: ConnectorVariant): React.ReactNode => {
               <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.05" />
             </linearGradient>
           </defs>
-          <path id="p-flow" d="M120 4 L120 196" fill="none" stroke="url(#conn-flow)" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="6 9" />
-          <Dots pathId="p-flow" count={2} dur={2.6} color="#93C5FD" r={3.2} />
+          <path d="M120 4 L120 196" fill="none" stroke="#60A5FA" strokeOpacity="0.1" strokeWidth="9" strokeLinecap="round" />
+          <path id="p-flow" d="M120 4 L120 196" fill="none" stroke="url(#conn-flow)" strokeWidth="3" strokeLinecap="round" strokeDasharray="6 9" />
+          <Dots pathId="p-flow" count={3} dur={2.6} color="#93C5FD" r={3.4} />
         </>
       );
 
@@ -58,11 +59,11 @@ const renderVariant = (variant: ConnectorVariant): React.ReactNode => {
               <stop offset="100%" stopColor="#06B6D4" stopOpacity="0.1" />
             </linearGradient>
           </defs>
-          {/* Wide translucent body */}
-          <path d="M120 4 C 92 60, 148 120, 120 196" fill="none" stroke="#22D3EE" strokeOpacity="0.12" strokeWidth="13" strokeLinecap="round" />
+          {/* Wide translucent body (pronounced double-wave so it reads as a liquid stream) */}
+          <path d="M120 4 C 78 44, 78 78, 120 100 C 162 122, 162 156, 120 196" fill="none" stroke="#22D3EE" strokeOpacity="0.14" strokeWidth="14" strokeLinecap="round" />
           {/* Bright core */}
-          <path id="p-stream" d="M120 4 C 92 60, 148 120, 120 196" fill="none" stroke="url(#conn-stream)" strokeWidth="3" strokeLinecap="round" />
-          <Dots pathId="p-stream" count={3} dur={2.2} color="#67E8F9" r={3} />
+          <path id="p-stream" d="M120 4 C 78 44, 78 78, 120 100 C 162 122, 162 156, 120 196" fill="none" stroke="url(#conn-stream)" strokeWidth="3" strokeLinecap="round" />
+          <Dots pathId="p-stream" count={4} dur={2.2} color="#67E8F9" r={3} />
         </>
       );
 
@@ -121,10 +122,13 @@ const renderVariant = (variant: ConnectorVariant): React.ReactNode => {
           <path id="pt-l" d="M60 8 L120 100" fill="none" stroke="url(#conn-token)" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.7" />
           <path id="pt-c" d="M120 8 L120 100" fill="none" stroke="url(#conn-token)" strokeWidth="2.2" strokeLinecap="round" />
           <path id="pt-r" d="M180 8 L120 100" fill="none" stroke="url(#conn-token)" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.7" />
+          {/* Stem: branches converge and flow into the token */}
+          <path id="pt-stem" d="M120 100 L120 123" fill="none" stroke="url(#conn-token)" strokeWidth="2.6" strokeLinecap="round" />
 
           <Dots pathId="pt-l" count={1} dur={1.9} color="#93C5FD" r={2.6} />
           <Dots pathId="pt-c" count={1} dur={1.6} color="#FBBF24" r={2.8} />
           <Dots pathId="pt-r" count={1} dur={1.9} color="#93C5FD" r={2.6} />
+          <Dots pathId="pt-stem" count={1} dur={1.4} color="#FCD34D" r={2.8} />
 
           {/* APX hexagonal token */}
           <g transform="translate(120 150)">
