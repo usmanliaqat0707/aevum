@@ -17,7 +17,9 @@ import {
   ArrowUpRight, 
   Database, 
   Coins, 
-  AlertCircle 
+  AlertCircle,
+  Plus,
+  Minus
 } from 'lucide-react';
 import { EmptyStateIllustration } from './illustrations/ArchitecturalIllustrations';
 
@@ -335,7 +337,7 @@ export const PublicFaq: React.FC = () => {
         </div>
 
         {/* FAQ Accordion List with 4 Required Sub-Sections (Text, Diagram, Example, Related Articles) */}
-        <div className="space-y-4">
+        <div className="space-y-4 sm:space-y-5">
           {filteredFaqs.map((faq) => {
             const isExpanded = expandedId === faq.id;
 
@@ -348,30 +350,37 @@ export const PublicFaq: React.FC = () => {
                     : 'bg-[#070912] border-slate-800/80 hover:border-slate-700'
                 }`}
               >
-                {/* Header Toggle */}
+                {/* Header Toggle — large editorial row */}
                 <button
                   onClick={() => toggleAccordion(faq.id)}
-                  className="w-full p-6 text-left flex items-center justify-between gap-4 cursor-pointer focus:outline-none"
+                  className="w-full px-6 sm:px-8 py-6 sm:py-7 text-left flex items-center justify-between gap-5 cursor-pointer focus:outline-none"
                 >
-                  <div className="space-y-1">
-                    <div className="text-[10px] font-mono uppercase tracking-wider text-blue-400 font-bold">
+                  <div className="space-y-1.5">
+                    <div className="text-[11px] font-mono uppercase tracking-wider text-blue-400 font-bold">
                       {faq.category}
                     </div>
-                    <h3 className="text-lg font-bold text-white tracking-tight">
+                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight leading-snug">
                       {faq.question}
                     </h3>
                   </div>
 
-                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform ${
-                    isExpanded ? 'bg-blue-500/20 text-blue-400 rotate-180' : 'bg-[#0f1424] text-slate-400'
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border transition-all duration-300 ${
+                    isExpanded
+                      ? 'bg-blue-500/20 text-blue-300 border-blue-500/40 rotate-180'
+                      : 'bg-[#0f1424] text-slate-400 border-slate-800 group-hover:text-white'
                   }`}>
-                    <ChevronDown className="w-4 h-4" />
+                    {isExpanded ? <Minus className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
                   </div>
                 </button>
 
-                {/* Expanded Multi-Part Answer Content */}
-                {isExpanded && (
-                  <div className="px-6 pb-6 pt-2 space-y-6 border-t border-slate-800/80 animate-in fade-in duration-200">
+                {/* Expanded Multi-Part Answer Content — animates downward (grid-rows height expand) */}
+                <div
+                  className={`grid transition-all duration-300 ease-out ${
+                    isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                  <div className="px-6 sm:px-8 pb-7 pt-3 space-y-6 border-t border-slate-800/80">
                     
                     {/* 1. TEXT ANSWER */}
                     <div className="space-y-2">
@@ -466,7 +475,8 @@ export const PublicFaq: React.FC = () => {
                     </div>
 
                   </div>
-                )}
+                  </div>
+                </div>
               </div>
             );
           })}
