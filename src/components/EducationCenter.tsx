@@ -57,6 +57,69 @@ export const EducationCenter: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<EducationCategory>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeArticleModal, setActiveArticleModal] = useState<ArticleItem | null>(null);
+  const [platformStep, setPlatformStep] = useState<number>(0);
+
+  // Three editorial "ways in" — a tiered learning path that opens into full explainers.
+  const FEATURED: Record<'beginner' | 'platform' | 'advanced', ArticleItem> = {
+    beginner: {
+      id: 'feat-beginner',
+      title: 'What is a digital asset?',
+      category: 'Beginner',
+      difficulty: 'Introductory',
+      readingTime: '4 min read',
+      excerpt: 'A plain-language primer on what digital assets are, how ownership actually works, and why institutional custody matters.',
+      publishedDate: 'August 2026',
+      tags: ['Basics', 'Ownership', 'Custody'],
+      illustrationTheme: 'vault',
+      contentSummary: [
+        'A digital asset is a cryptographically-secured unit of value recorded on a distributed ledger.',
+        'Ownership is proven by control of a private key — not by a row in a single company database.',
+        'Institutional custody replaces one fragile key with multi-party computation, so no single party can move funds alone.',
+        'Balances are held in bankruptcy-remote, segregated accounts and verified 1:1 by continuous proofs.'
+      ]
+    },
+    platform: {
+      id: 'feat-platform',
+      title: 'How does the network work?',
+      category: 'Platform',
+      difficulty: 'Introductory',
+      readingTime: '5 min read',
+      excerpt: 'A guided tour of how deposits, routing, and settlement move across the Aevum network.',
+      publishedDate: 'August 2026',
+      tags: ['Network', 'Routing', 'Settlement'],
+      illustrationTheme: 'compliance',
+      contentSummary: [
+        'Capital enters through vetted rails into a segregated account tied to your entity.',
+        'Smart Order Routing finds the cheapest execution path across 45+ venues in real time.',
+        'Settlement nets internally and only touches chain when final, minimizing gas and slippage.',
+        'Every hop is timestamped and independently verifiable.'
+      ]
+    },
+    advanced: {
+      id: 'feat-advanced',
+      title: 'How does the ledger record activity?',
+      category: 'Advanced',
+      difficulty: 'Advanced',
+      readingTime: '8 min read',
+      excerpt: 'A technical walkthrough of how events are hashed, batched into Merkle trees, and attested on-chain.',
+      publishedDate: 'June 2026',
+      tags: ['Merkle', 'Attestation', 'Ledger'],
+      illustrationTheme: 'zkp',
+      contentSummary: [
+        'Each event is timestamped and assigned a deterministic identifier.',
+        'Events are hashed and batched into a Merkle tree whose root commits to every leaf.',
+        'The root is broadcast on-chain every ~300 blocks, creating an immutable attestation.',
+        'Anyone can verify a single event against the published root without revealing the whole ledger.'
+      ]
+    }
+  };
+
+  // Micro interactive explainer inside the Platform tier.
+  const PLATFORM_STEPS = [
+    { label: 'Deposit', desc: 'Capital enters through vetted rails into your entity\u2019s segregated account.' },
+    { label: 'Route', desc: 'Smart Order Routing finds the cheapest path across 45+ venues in real time.' },
+    { label: 'Settle', desc: 'Balances net internally and touch chain only when final — logged and verifiable.' },
+  ];
 
   const CATEGORIES: EducationCategory[] = [
     'All',
@@ -349,6 +412,134 @@ export const EducationCenter: React.FC = () => {
               </button>
             );
           })}
+        </div>
+
+        {/* ===================== EDITORIAL LEARNING TIERS ===================== */}
+        <div className="mb-14">
+          <div className="flex items-center gap-2 mb-5 text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+            Start here · three ways in
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+
+            {/* ---- TIER 1: BEGINNER — Large Illustration ---- */}
+            <button
+              onClick={() => setActiveArticleModal(FEATURED.beginner)}
+              className="group relative rounded-3xl bg-gradient-to-b from-[#0b1522] to-[#0a0d16] border border-emerald-500/25 hover:border-emerald-400/50 p-6 text-left overflow-hidden flex flex-col transition-all duration-300 shadow-lg hover:shadow-2xl cursor-pointer"
+            >
+              <div className="absolute -top-16 -right-10 w-56 h-56 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
+              <div className="relative z-10 flex items-center justify-between mb-3">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                  Beginner · 01
+                </span>
+                <span className="text-[10px] font-mono text-slate-500">4 min</span>
+              </div>
+
+              {/* Large friendly illustration */}
+              <div className="relative z-10 flex items-center justify-center py-4 min-h-[190px]">
+                <WalletIllustration size="lg" className="scale-95 group-hover:scale-100 transition-transform duration-500" />
+              </div>
+
+              <div className="relative z-10 mt-auto">
+                <h3 className="text-2xl font-extrabold text-white leading-tight">What is a digital asset?</h3>
+                <p className="text-sm text-slate-400 mt-2 leading-relaxed">
+                  Ownership, keys, and why institutional custody matters — in plain language.
+                </p>
+                <div className="mt-4 inline-flex items-center gap-1.5 text-emerald-300 font-semibold text-sm group-hover:gap-2.5 transition-all">
+                  Start learning <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+            </button>
+
+            {/* ---- TIER 2: PLATFORM — Interactive Explainer ---- */}
+            <div className="relative rounded-3xl bg-[#0a0e1a] border border-blue-500/25 p-6 flex flex-col overflow-hidden shadow-lg">
+              <div className="absolute -top-16 -left-10 w-56 h-56 bg-blue-600/12 rounded-full blur-[80px] pointer-events-none" />
+              <div className="relative z-10 flex items-center justify-between mb-3">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                  Platform · 02 · Interactive
+                </span>
+                <span className="text-[10px] font-mono text-slate-500">5 min</span>
+              </div>
+
+              {/* Interactive network explainer */}
+              <div className="relative z-10 flex items-center justify-center py-1 min-h-[150px]">
+                <NetworkIllustration size="md" className="scale-90" />
+              </div>
+
+              {/* Step segmented control */}
+              <div className="relative z-10 flex items-center gap-1.5 bg-[#070b14] p-1 rounded-xl border border-slate-800 mb-2">
+                {PLATFORM_STEPS.map((s, i) => (
+                  <button
+                    key={s.label}
+                    onClick={() => setPlatformStep(i)}
+                    className={`flex-1 px-2 py-1.5 rounded-lg text-[11px] font-mono font-bold transition-all cursor-pointer ${
+                      platformStep === i ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {i + 1}. {s.label}
+                  </button>
+                ))}
+              </div>
+              <p className="relative z-10 text-xs text-blue-200/90 leading-relaxed min-h-[32px]">
+                {PLATFORM_STEPS[platformStep].desc}
+              </p>
+
+              <div className="relative z-10 mt-auto pt-3">
+                <h3 className="text-2xl font-extrabold text-white leading-tight">How does the network work?</h3>
+                <button
+                  onClick={() => setActiveArticleModal(FEATURED.platform)}
+                  className="mt-3 inline-flex items-center gap-1.5 text-blue-300 font-semibold text-sm hover:gap-2.5 transition-all cursor-pointer"
+                >
+                  Explore the network <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* ---- TIER 3: ADVANCED — Technical Diagram ---- */}
+            <button
+              onClick={() => setActiveArticleModal(FEATURED.advanced)}
+              className="group relative rounded-3xl bg-[#080b12] border border-cyan-500/25 hover:border-cyan-400/50 p-6 text-left overflow-hidden flex flex-col transition-all duration-300 shadow-lg hover:shadow-2xl cursor-pointer"
+            >
+              {/* Schematic grid backdrop */}
+              <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:22px_22px] opacity-25 pointer-events-none" />
+              <div className="absolute -bottom-16 -right-10 w-56 h-56 bg-cyan-500/10 rounded-full blur-[80px] pointer-events-none" />
+
+              <div className="relative z-10 flex items-center justify-between mb-3">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                  Advanced · 03 · Technical
+                </span>
+                <span className="text-[10px] font-mono text-slate-500">8 min</span>
+              </div>
+
+              {/* Technical ledger diagram with schematic annotations */}
+              <div className="relative z-10 flex items-center justify-center py-2 min-h-[150px]">
+                <TransparencyIllustration size="md" className="scale-90" />
+                <div className="absolute top-2 left-1 text-[9px] font-mono text-cyan-300/70 space-y-0.5">
+                  <div>height: 892,104</div>
+                  <div>root: 0x4f…9a</div>
+                  <div>leaves: 14,291</div>
+                </div>
+              </div>
+
+              <div className="relative z-10 mt-auto">
+                <h3 className="text-2xl font-extrabold text-white leading-tight">How does the ledger record activity?</h3>
+                <p className="text-sm text-slate-400 mt-2 leading-relaxed font-mono">
+                  Hashing → Merkle batching → on-chain attestation.
+                </p>
+                <div className="mt-4 inline-flex items-center gap-1.5 text-cyan-300 font-semibold text-sm group-hover:gap-2.5 transition-all">
+                  Read the spec <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+        {/* Repository label */}
+        <div className="flex items-center gap-2 mb-5 text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+          <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+          Browse the full repository
         </div>
 
         {/* Modern Editorial Article Grid */}
