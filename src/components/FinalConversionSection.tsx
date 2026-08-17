@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform } from 'motion/react';
 import { 
   ArrowRight, 
   Terminal, 
@@ -23,6 +24,12 @@ export const FinalConversionSection: React.FC<FinalConversionSectionProps> = ({
   onOpenAccessRequest
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // Scroll-driven: the network slowly expands behind the headline as it enters.
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] });
+  const networkScale = useTransform(scrollYProgress, [0, 0.6], [0.82, 1.12]);
+  const networkOpacity = useTransform(scrollYProgress, [0, 0.25], [0.4, 1]);
 
   const scrollToPlatform = () => {
     const el = document.getElementById('platform-overview-section');
@@ -196,13 +203,15 @@ export const FinalConversionSection: React.FC<FinalConversionSectionProps> = ({
   }, []);
 
   return (
-    <section id="final-conversion-section" className="relative py-28 sm:py-36 bg-[#03050a] overflow-hidden border-t border-slate-800">
+    <section ref={sectionRef} id="final-conversion-section" className="relative py-28 sm:py-36 bg-[#03050a] overflow-hidden border-t border-slate-800">
       
-      {/* Interactive / Animated Moving Network & Ledger Canvas */}
-      <canvas 
-        ref={canvasRef} 
-        className="absolute inset-0 w-full h-full pointer-events-none z-0"
-      />
+      {/* Interactive / Animated Moving Network & Ledger Canvas (scroll-driven expansion) */}
+      <motion.div className="absolute inset-0 z-0" style={{ scale: networkScale, opacity: networkOpacity }}>
+        <canvas 
+          ref={canvasRef} 
+          className="absolute inset-0 w-full h-full pointer-events-none"
+        />
+      </motion.div>
 
       {/* Subtle Radial Vignette overlay to keep text ultra crisp */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#03050a]/80 via-transparent to-[#03050a] pointer-events-none z-[1]" />

@@ -20,6 +20,7 @@ import { ScreenshotExportModal } from './components/ScreenshotExportModal';
 import { FloatingScreenshotWidget } from './components/FloatingScreenshotWidget';
 import { SectionConnector } from './components/SectionConnector';
 import { AmbientBackground } from './components/AmbientBackground';
+import { Reveal } from './components/Reveal';
 
 export default function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -71,29 +72,37 @@ export default function App() {
         <SectionConnector variant="flow" />
 
         {/* 2.6 How It Works: Animated Timeline */}
-        <HowItWorksTimeline
-          onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
-        />
+        <Reveal>
+          <HowItWorksTimeline
+            onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
+          />
+        </Reveal>
 
         {/* Connective tissue: How It Works → Liquidity (liquidity stream) */}
         <SectionConnector variant="stream" />
 
         {/* 2.7 Liquidity Explanation: Interactive Mechanics Visualizer */}
-        <LiquidityMechanicsVisualizer />
+        <Reveal>
+          <LiquidityMechanicsVisualizer />
+        </Reveal>
 
         {/* Connective tissue: Liquidity → Network (stream branches into nodes) */}
         <SectionConnector variant="branch" />
 
         {/* 2.8 Matrix Explanation: 2x6 Interactive Network Structure */}
-        <MatrixExplanationVisualizer />
+        <Reveal>
+          <MatrixExplanationVisualizer />
+        </Reveal>
 
         {/* Connective tissue: Network → App Coin (branch becomes APX token) */}
         <SectionConnector variant="token" />
 
         {/* 2.9 App Coin: Protocol Utility Specification */}
-        <AppCoinUtility
-          onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
-        />
+        <Reveal>
+          <AppCoinUtility
+            onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
+          />
+        </Reveal>
 
         {/* Connective tissue: App Coin → Transparency (structure becomes ledger blocks) */}
         <SectionConnector variant="ledger" />
@@ -105,7 +114,9 @@ export default function App() {
         <EducationCenter />
 
         {/* 2.13 Public FAQ: Search-First Institutional Knowledge Base */}
-        <PublicFaq />
+        <Reveal>
+          <PublicFaq />
+        </Reveal>
 
         {/* Final Conversion Section: Dark Immersive CTA */}
         <FinalConversionSection

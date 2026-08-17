@@ -28,6 +28,7 @@ import {
   SecurityIllustration, 
   NetworkIllustration 
 } from './illustrations/ArchitecturalIllustrations';
+import { motion } from 'motion/react';
 
 type TransparencySectionId = 
   | 'activity'
@@ -565,7 +566,14 @@ export const TransparencyCenter: React.FC = () => {
                     {PLATFORM_ACTIVITY_DATA.map((ev, idx) => {
                       const cat = CATEGORY_ACCENT[ev.category] ?? CATEGORY_ACCENT.Settlement;
                       return (
-                        <tr key={idx} className="hover:bg-[#0e1324] transition-colors align-top">
+                        <motion.tr
+                          key={idx}
+                          initial={{ opacity: 0, y: 12 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true, amount: 0.4 }}
+                          transition={{ duration: 0.4, delay: idx * 0.08, ease: 'easeOut' }}
+                          className="hover:bg-[#0e1324] transition-colors align-top"
+                        >
                           {/* Live status */}
                           <td className="py-3.5 px-4 whitespace-nowrap">
                             {ev.live ? (
@@ -630,7 +638,7 @@ export const TransparencyCenter: React.FC = () => {
                               <ExternalLink className="w-3 h-3 opacity-60" />
                             </span>
                           </td>
-                        </tr>
+                        </motion.tr>
                       );
                     })}
                   </tbody>
