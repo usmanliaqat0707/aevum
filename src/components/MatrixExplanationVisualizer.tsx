@@ -1,265 +1,155 @@
-import React, { useState } from 'react';
-import { 
-  Network, 
-  Layers, 
-  Users, 
-  Activity, 
-  DollarSign, 
-  ChevronRight, 
-  ChevronDown, 
-  Sliders, 
-  Info, 
-  ShieldCheck, 
-  Zap, 
-  CheckCircle2, 
-  TrendingUp,
-  Maximize2,
-  Minimize2,
-  Sparkles,
-  ArrowRight,
-  Filter
+import React, { useMemo, useRef, useState } from 'react';
+import {
+  Network,
+  Layers,
+  Users,
+  Activity,
+  DollarSign,
+  ShieldCheck,
+  Info,
+  Crosshair,
+  Gauge,
+  Plus,
+  Minus
 } from 'lucide-react';
 
-interface MatrixNodeData {
+type Branch = 'center' | 'left' | 'right';
+type ActivityStatus = 'optimal' | 'high' | 'syncing';
+
+interface GraphNode {
   id: string;
   label: string;
-  tier: number; // 1 to 6
-  branch: 'left' | 'right' | 'root';
+  tier: number;
+  tierLabel: string;
+  branch: Branch;
+  x: number; // in the 1000 x 640 graph coordinate space
+  y: number;
+  deep: boolean; // belongs to the deep tiers (04–06), hidden when the branch is collapsed
   position: string;
   activity: string;
-  activityStatus: 'optimal' | 'high' | 'syncing';
+  activityStatus: ActivityStatus;
   teamSize: number;
   volumeUsd: number;
   signers: string[];
   latencyMs: number;
-  children?: MatrixNodeData[];
 }
 
+// Shared accent tokens per branch, keeping the graph and inspector visually in sync.
+const BRANCH_COLOR: Record<Branch, { stroke: string; dot: string; text: string; bg: string; border: string; ring: string }> = {
+  center: { stroke: '#22D3EE', dot: '#67E8F9', text: 'text-cyan-300', bg: 'bg-cyan-500/15', border: 'border-cyan-400/60', ring: 'ring-cyan-500/25' },
+  left: { stroke: '#3B82F6', dot: '#60A5FA', text: 'text-blue-400', bg: 'bg-blue-500/15', border: 'border-blue-500/50', ring: 'ring-blue-500/30' },
+  right: { stroke: '#34D399', dot: '#6EE7B7', text: 'text-emerald-400', bg: 'bg-emerald-500/15', border: 'border-emerald-500/50', ring: 'ring-emerald-500/30' },
+};
+
+const STATUS_PULSE: Record<ActivityStatus, string> = {
+  optimal: 'bg-emerald-400',
+  high: 'bg-blue-400',
+  syncing: 'bg-amber-400',
+};
+
+// "My Position" sits at the center; the 2×6 structure (2 branches × 6 tiers) is built around it.
+const GRAPH_NODES: GraphNode[] = [
+  {
+    id: 'center', label: 'My Position', tier: 1, tierLabel: 'Tier 01', branch: 'center',
+    x: 500, y: 320, deep: false,
+    position: 'Tier 01 • My Apex Multi-Sig Position',
+    activity: 'Consensus Active (100% Attestation)', activityStatus: 'optimal',
+    teamSize: 48, volumeUsd: 148290000,
+    signers: ['CRO Key (Zurich)', 'Treasury Desk (NY)', 'FIPS Enclave (London)'], latencyMs: 14,
+  },
+
+  // Branch A (left) — OTC & Prime Custody
+  { id: 'l2', label: 'Institutional Prime Branch', tier: 2, tierLabel: 'Tier 02', branch: 'left', x: 300, y: 118, deep: false,
+    position: 'Tier 02 • Primary OTC & Custody Channel', activity: 'High-Volume Settlement Active', activityStatus: 'high',
+    teamSize: 26, volumeUsd: 92450000, signers: ['Prime Custodian Shard #1', 'Tier-1 Relayer (Geneva)'], latencyMs: 18 },
+  { id: 'l3', label: 'Zurich Vault Enclave', tier: 3, tierLabel: 'Tier 03', branch: 'left', x: 170, y: 210, deep: false,
+    position: 'Tier 03 • Deep Offline MPC Vault', activity: 'Quorum Verified (2-of-3)', activityStatus: 'optimal',
+    teamSize: 12, volumeUsd: 54100000, signers: ['Hardware HSM A1', 'Cold Shard Zurich'], latencyMs: 22 },
+  { id: 'l4', label: 'OTC Block Desk', tier: 4, tierLabel: 'Tier 04', branch: 'left', x: 150, y: 360, deep: true,
+    position: 'Tier 04 • Dark Pool Routing Desk', activity: 'TWAP Execution Streaming', activityStatus: 'high',
+    teamSize: 6, volumeUsd: 28900000, signers: ['Execution Algo Gateway'], latencyMs: 31 },
+  { id: 'l5', label: 'Algorithmic Arbitrage Rail', tier: 5, tierLabel: 'Tier 05', branch: 'left', x: 225, y: 500, deep: true,
+    position: 'Tier 05 • Cross-Venue Settlement Rail', activity: 'Sub-second Netting Active', activityStatus: 'optimal',
+    teamSize: 3, volumeUsd: 16400000, signers: ['SOR Node Alpha'], latencyMs: 38 },
+  { id: 'l6', label: 'Micro-Liquidity Pod', tier: 6, tierLabel: 'Tier 06', branch: 'left', x: 370, y: 560, deep: true,
+    position: 'Tier 06 • Final Endpoint Settlement Unit', activity: 'Real-Time Attested', activityStatus: 'optimal',
+    teamSize: 2, volumeUsd: 8900000, signers: ['Endpoint Relayer #01'], latencyMs: 44 },
+
+  // Branch B (right) — Treasury & Staking
+  { id: 'r2', label: 'Treasury & Staking Branch', tier: 2, tierLabel: 'Tier 02', branch: 'right', x: 700, y: 118, deep: false,
+    position: 'Tier 02 • Proof-of-Stake & Yield Hub', activity: 'Validator Node Consensus (99.98%)', activityStatus: 'optimal',
+    teamSize: 22, volumeUsd: 55840000, signers: ['Treasury Signer #2', 'Validator Controller (Singapore)'], latencyMs: 24 },
+  { id: 'r3', label: 'Singapore Validator Node', tier: 3, tierLabel: 'Tier 03', branch: 'right', x: 830, y: 210, deep: false,
+    position: 'Tier 03 • Prime Consensus Validator', activity: 'Block Production (3.92% APY)', activityStatus: 'optimal',
+    teamSize: 10, volumeUsd: 32200000, signers: ['Zero-Slash Slashing Shield'], latencyMs: 28 },
+  { id: 'r4', label: 'Ethereum PoS Delegation', tier: 4, tierLabel: 'Tier 04', branch: 'right', x: 850, y: 360, deep: true,
+    position: 'Tier 04 • Smart Contract Delegation Pool', activity: 'Daily Staking Reward Harvest', activityStatus: 'optimal',
+    teamSize: 5, volumeUsd: 18600000, signers: ['Auto-Compounder Engine'], latencyMs: 35 },
+  { id: 'r5', label: 'Yield Sweeper Treasury', tier: 5, tierLabel: 'Tier 05', branch: 'right', x: 775, y: 500, deep: true,
+    position: 'Tier 05 • Non-Custodial Yield Sweeper', activity: 'Automated Treasury Allocator', activityStatus: 'optimal',
+    teamSize: 4, volumeUsd: 11400000, signers: ['Yield Escrow Controller'], latencyMs: 40 },
+  { id: 'r6', label: 'Ecosystem Partner Shard', tier: 6, tierLabel: 'Tier 06', branch: 'right', x: 630, y: 560, deep: true,
+    position: 'Tier 06 • Partner Distribution Vault', activity: 'Audited Distributions', activityStatus: 'optimal',
+    teamSize: 3, volumeUsd: 6200000, signers: ['Audit Feed Oracle #09'], latencyMs: 48 },
+];
+
+const EDGES: Array<{ from: string; to: string }> = [
+  { from: 'center', to: 'l2' }, { from: 'l2', to: 'l3' }, { from: 'l3', to: 'l4' }, { from: 'l4', to: 'l5' }, { from: 'l5', to: 'l6' },
+  { from: 'center', to: 'r2' }, { from: 'r2', to: 'r3' }, { from: 'r3', to: 'r4' }, { from: 'r4', to: 'r5' }, { from: 'r5', to: 'r6' },
+];
+
+const VIEW_W = 1000;
+const VIEW_H = 640;
+
 export const MatrixExplanationVisualizer: React.FC = () => {
-  const [viewMode, setViewMode] = useState<'simple' | 'detailed'>('detailed');
-  const [hoveredNode, setHoveredNode] = useState<MatrixNodeData | null>(null);
-  const [selectedNode, setSelectedNode] = useState<MatrixNodeData | null>(null);
-  const [expandedTiers, setExpandedTiers] = useState<number[]>([1, 2, 3]);
+  const [focusId, setFocusId] = useState<string>('center');
+  const [expandedLeft, setExpandedLeft] = useState<boolean>(true);
+  const [expandedRight, setExpandedRight] = useState<boolean>(true);
+  const stageRef = useRef<HTMLDivElement | null>(null);
 
-  // 2x6 Matrix Hierarchy Data (2 Primary Branches x 6 Depth Tiers)
-  const MATRIX_DATA: MatrixNodeData = {
-    id: 'node-root',
-    label: 'Apex Organization Root',
-    tier: 1,
-    branch: 'root',
-    position: 'Tier 01 • Apex Multi-Sig Master',
-    activity: 'Consensus Active (100% Attestation)',
-    activityStatus: 'optimal',
-    teamSize: 48,
-    volumeUsd: 148290000,
-    signers: ['CRO Key (Zurich)', 'Treasury Desk (NY)', 'FIPS Enclave (London)'],
-    latencyMs: 14,
-    children: [
-      {
-        id: 'node-t2-left',
-        label: 'Institutional Prime Branch (L)',
-        tier: 2,
-        branch: 'left',
-        position: 'Tier 02 • Primary OTC & Custody Channel',
-        activity: 'High-Volume Settlement Active',
-        activityStatus: 'high',
-        teamSize: 26,
-        volumeUsd: 92450000,
-        signers: ['Prime Custodian Shard #1', 'Tier-1 Relayer (Geneva)'],
-        latencyMs: 18,
-        children: [
-          {
-            id: 'node-t3-l1',
-            label: 'Zurich Vault Enclave',
-            tier: 3,
-            branch: 'left',
-            position: 'Tier 03 • Deep Offline MPC Vault',
-            activity: 'Quorum Verified (2-of-3)',
-            activityStatus: 'optimal',
-            teamSize: 12,
-            volumeUsd: 54100000,
-            signers: ['Hardware HSM A1', 'Cold Shard Zurich'],
-            latencyMs: 22,
-            children: [
-              {
-                id: 'node-t4-l1-1',
-                label: 'OTC Block Desk',
-                tier: 4,
-                branch: 'left',
-                position: 'Tier 04 • Dark Pool Routing Desk',
-                activity: 'TWAP Execution Streaming',
-                activityStatus: 'high',
-                teamSize: 6,
-                volumeUsd: 28900000,
-                signers: ['Execution Algo Gateway'],
-                latencyMs: 31,
-                children: [
-                  {
-                    id: 'node-t5-l1-1',
-                    label: 'Algorithmic Arbitrage Rail',
-                    tier: 5,
-                    branch: 'left',
-                    position: 'Tier 05 • Cross-Venue Settlement Rail',
-                    activity: 'Sub-second Netting Active',
-                    activityStatus: 'optimal',
-                    teamSize: 3,
-                    volumeUsd: 16400000,
-                    signers: ['SOR Node Alpha'],
-                    latencyMs: 38,
-                    children: [
-                      {
-                        id: 'node-t6-l1-1',
-                        label: 'Micro-Liquidity Provider Pod',
-                        tier: 6,
-                        branch: 'left',
-                        position: 'Tier 06 • Final Endpoint Settlement Unit',
-                        activity: 'Real-Time Attested',
-                        activityStatus: 'optimal',
-                        teamSize: 2,
-                        volumeUsd: 8900000,
-                        signers: ['Endpoint Relayer #01'],
-                        latencyMs: 44
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            id: 'node-t3-l2',
-            label: 'Frankfurt Market Relayer',
-            tier: 3,
-            branch: 'left',
-            position: 'Tier 03 • European Fast-Path Gateway',
-            activity: 'Mempool Monitoring Active',
-            activityStatus: 'optimal',
-            teamSize: 8,
-            volumeUsd: 38350000,
-            signers: ['SEPA Instant Bridge Desk'],
-            latencyMs: 16
-          }
-        ]
-      },
-      {
-        id: 'node-t2-right',
-        label: 'Treasury & Staking Branch (R)',
-        tier: 2,
-        branch: 'right',
-        position: 'Tier 02 • Proof-of-Stake & Yield Hub',
-        activity: 'Validator Node Consensus (99.98%)',
-        activityStatus: 'optimal',
-        teamSize: 22,
-        volumeUsd: 55840000,
-        signers: ['Treasury Signer #2', 'Validator Controller (Singapore)'],
-        latencyMs: 24,
-        children: [
-          {
-            id: 'node-t3-r1',
-            label: 'Singapore Validator Node',
-            tier: 3,
-            branch: 'right',
-            position: 'Tier 03 • Prime Consensus Validator',
-            activity: 'Block Production (3.92% APY)',
-            activityStatus: 'optimal',
-            teamSize: 10,
-            volumeUsd: 32200000,
-            signers: ['Zero-Slash Slashing Shield'],
-            latencyMs: 28,
-            children: [
-              {
-                id: 'node-t4-r1-1',
-                label: 'Ethereum PoS Delegation Pool',
-                tier: 4,
-                branch: 'right',
-                position: 'Tier 04 • Smart Contract Delegation Pool',
-                activity: 'Daily Staking Reward Harvest',
-                activityStatus: 'optimal',
-                teamSize: 5,
-                volumeUsd: 18600000,
-                signers: ['Auto-Compounder Engine'],
-                latencyMs: 35,
-                children: [
-                  {
-                    id: 'node-t5-r1-1',
-                    label: 'Yield Sweeper Treasury',
-                    tier: 5,
-                    branch: 'right',
-                    position: 'Tier 05 • Non-Custodial Yield Sweeper',
-                    activity: 'Automated Treasury Allocator',
-                    activityStatus: 'optimal',
-                    teamSize: 4,
-                    volumeUsd: 11400000,
-                    signers: ['Yield Escrow Controller'],
-                    latencyMs: 40,
-                    children: [
-                      {
-                        id: 'node-t6-r1-1',
-                        label: 'Ecosystem Partner Shard',
-                        tier: 6,
-                        branch: 'right',
-                        position: 'Tier 06 • Partner Distribution Vault',
-                        activity: 'Audited Distributions',
-                        activityStatus: 'optimal',
-                        teamSize: 3,
-                        volumeUsd: 6200000,
-                        signers: ['Audit Feed Oracle #09'],
-                        latencyMs: 48
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            id: 'node-t3-r2',
-            label: 'Tokyo Treasury Liquidity Desk',
-            tier: 3,
-            branch: 'right',
-            position: 'Tier 03 • APAC Liquidity Buffer',
-            activity: 'FX Multi-Currency Rebalancer',
-            activityStatus: 'syncing',
-            teamSize: 7,
-            volumeUsd: 23640000,
-            signers: ['APAC Wire Escrow Desk'],
-            latencyMs: 29
-          }
-        ]
-      }
-    ]
+  const nodeById = useMemo(() => {
+    const map: Record<string, GraphNode> = {};
+    GRAPH_NODES.forEach((n) => { map[n.id] = n; });
+    return map;
+  }, []);
+
+  const isNodeVisible = (n: GraphNode) => {
+    if (!n.deep) return true;
+    return n.branch === 'left' ? expandedLeft : expandedRight;
   };
 
-  const toggleTier = (tier: number) => {
-    if (expandedTiers.includes(tier)) {
-      setExpandedTiers(expandedTiers.filter(t => t !== tier));
-    } else {
-      setExpandedTiers([...expandedTiers, tier]);
-    }
+  const focusNode = nodeById[focusId] ?? nodeById.center;
+
+  // Subtle 3D parallax: tilt the whole graph layer toward the cursor (edges + nodes move together).
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = stageRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const nx = (e.clientX - rect.left) / rect.width - 0.5;
+    const ny = (e.clientY - rect.top) / rect.height - 0.5;
+    el.style.transform = `perspective(1400px) rotateX(${(-ny * 5).toFixed(2)}deg) rotateY(${(nx * 6).toFixed(2)}deg)`;
+  };
+  const handleMouseLeave = () => {
+    if (stageRef.current) stageRef.current.style.transform = 'perspective(1400px) rotateX(0deg) rotateY(0deg)';
   };
 
-  const activeFocus = hoveredNode || selectedNode || MATRIX_DATA;
+  const pctLeft = (x: number) => `${(x / VIEW_W) * 100}%`;
+  const pctTop = (y: number) => `${(y / VIEW_H) * 100}%`;
 
-  // 6 Tier Reference Specs
-  const TIERS_META = [
-    { tier: 1, name: 'Tier 01 • Apex Root', count: '1 Apex Entity', volume: '$148.3M' },
-    { tier: 2, name: 'Tier 02 • Prime Channels', count: '2 Core Branches (L / R)', volume: '$148.3M' },
-    { tier: 3, name: 'Tier 03 • Regional Enclaves', count: '4 Enclave Gateways', volume: '$148.3M' },
-    { tier: 4, name: 'Tier 04 • Execution Desks', count: '8 Trading & Yield Pods', volume: '$98.4M' },
-    { tier: 5, name: 'Tier 05 • Arbitrage Rails', count: '16 Liquidity Sweepers', volume: '$62.1M' },
-    { tier: 6, name: 'Tier 06 • Settlement Endpoints', count: '32 Connected Shards', volume: '$34.8M' }
-  ];
+  const bothExpanded = expandedLeft && expandedRight;
 
   return (
-    <section id="matrix-explanation-section" className="py-20 sm:py-28 bg-[#070911] relative overflow-hidden border-t border-slate-800/80">
-      
-      {/* Background Architectural Glow and Radial Lighting */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[500px] bg-blue-600/05 rounded-full blur-[160px] pointer-events-none" />
+    <section id="matrix-explanation-section" className="py-20 sm:py-28 bg-[#070911] relative border-t border-slate-800/80">
+
+      {/* Background glow — clipped by an inner wrapper so it never introduces horizontal scroll */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[560px] bg-blue-600/06 rounded-full blur-[170px]" />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
+
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-12">
+        <div className="text-center max-w-3xl mx-auto space-y-4 mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-400 text-xs font-semibold uppercase tracking-wider font-mono">
             <Network className="w-3.5 h-3.5" />
             ORGANIZATIONAL NETWORK ARCHITECTURE
@@ -268,13 +158,12 @@ export const MatrixExplanationVisualizer: React.FC = () => {
             2×6 Matrix Network Structure
           </h2>
           <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed">
-            An interactive topological visualization of the institutional dual-branch matrix spanning 6 tiers of organizational depth, liquidity routing, and quorum governance.
+            A living topology of your institutional matrix — two branches spanning six tiers of depth — mapped around your own position at the center.
           </p>
         </div>
 
-        {/* View Mode Toggle & Metrics Status Bar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#0b0e18] border border-slate-800 mb-8">
-          
+        {/* Control Bar */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#0b0e18] border border-slate-800 mb-6">
           <div className="flex items-center gap-3">
             <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
             <div className="text-xs font-mono text-slate-300">
@@ -283,407 +172,214 @@ export const MatrixExplanationVisualizer: React.FC = () => {
             </div>
           </div>
 
-          {/* Simple View vs Detailed View Toggle */}
-          <div className="flex items-center bg-[#070910] p-1 rounded-xl border border-slate-800 self-start sm:self-auto">
+          <div className="flex items-center gap-2 self-start sm:self-auto">
             <button
-              onClick={() => setViewMode('simple')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                viewMode === 'simple'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200'
+              onClick={() => { setExpandedLeft(true); setExpandedRight(true); }}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 border ${
+                bothExpanded ? 'bg-blue-600 text-white border-blue-500 shadow-md' : 'bg-[#070910] text-slate-400 border-slate-800 hover:text-slate-200'
               }`}
             >
-              <Minimize2 className="w-3.5 h-3.5" />
-              <span>Simple View</span>
+              <Plus className="w-3.5 h-3.5" /> Expand Full Matrix
             </button>
             <button
-              onClick={() => setViewMode('detailed')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                viewMode === 'detailed'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200'
+              onClick={() => { setExpandedLeft(false); setExpandedRight(false); }}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 border ${
+                !expandedLeft && !expandedRight ? 'bg-blue-600 text-white border-blue-500 shadow-md' : 'bg-[#070910] text-slate-400 border-slate-800 hover:text-slate-200'
               }`}
             >
-              <Maximize2 className="w-3.5 h-3.5" />
-              <span>Detailed View</span>
+              <Minus className="w-3.5 h-3.5" /> Collapse Deep Tiers
             </button>
           </div>
-
         </div>
 
-        {/* Main 2-Column Visualization + Real-Time Node Inspector */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* ================= LEFT COLUMN: 2x6 MATRIX VISUALIZATION ================= */}
-          <div className="lg:col-span-8 rounded-3xl bg-[#0a0d16] border border-slate-800 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-            
-            {viewMode === 'simple' ? (
-              /* --- SIMPLE VIEW: 6 TIER ABSTRACT FLOW WITH DIRECTIONAL ANIMATIONS --- */
-              <div className="space-y-4 py-2">
-                <div className="text-xs font-mono text-slate-400 mb-4 flex items-center justify-between">
-                  <span>6-TIER MATRIX STRATA (2 DUAL CHANNELS)</span>
-                  <span className="text-blue-400">Directional Flow: Top → Bottom</span>
-                </div>
+        {/* ============================ FULL-WIDTH SIGNATURE GRAPH ============================ */}
+        <div className="relative rounded-[28px] bg-[#0a0d16] border border-slate-800 shadow-2xl overflow-hidden">
+          {/* Ambient depth glows + isometric grid */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[560px] h-[560px] bg-blue-600/12 rounded-full blur-[150px] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] opacity-15 pointer-events-none" />
 
-                <div className="space-y-3">
-                  {TIERS_META.map((t, idx) => (
-                    <div
-                      key={t.tier}
-                      onMouseEnter={() => {
-                        setHoveredNode({
-                          id: `tier-${t.tier}`,
-                          label: t.name,
-                          tier: t.tier,
-                          branch: 'root',
-                          position: `Matrix Level ${t.tier}`,
-                          activity: 'Active Synchronized Quorum',
-                          activityStatus: 'optimal',
-                          teamSize: Math.pow(2, t.tier - 1) * 3,
-                          volumeUsd: 148290000 / t.tier,
-                          signers: [`Signer Ring Tier #${t.tier}`],
-                          latencyMs: 12 + t.tier * 4
-                        });
-                      }}
-                      className="group p-4 rounded-2xl bg-[#0e121f] border border-slate-800 hover:border-blue-500/60 hover:bg-[#111728] transition-all duration-200 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center font-mono font-bold text-xs border border-blue-500/20">
-                          0{t.tier}
-                        </div>
-                        <div>
-                          <div className="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">
-                            {t.name}
-                          </div>
-                          <div className="text-xs text-slate-400">
-                            {t.count}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Directional Connection Line Animation */}
-                      <div className="hidden sm:flex items-center gap-3 text-xs font-mono">
-                        <div className="flex items-center gap-1 text-slate-500">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping" />
-                          <span className="text-[11px] text-blue-300">2-Way Liquidity Rail</span>
-                        </div>
-                        <div className="px-3 py-1 rounded-lg bg-[#070910] border border-slate-800 text-emerald-400 font-bold font-tabular">
-                          {t.volume}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              /* --- DETAILED VIEW: EXPANDABLE 2x6 TREE WITH GLOWING NODES & CONNECTION LINES --- */
-              <div className="space-y-6">
-                
-                {/* Visual SVG Connecting Tree Map */}
-                <div className="relative py-2 select-none">
-                  
-                  {/* Tier 1: Apex Organization Root Node */}
-                  <div className="flex justify-center mb-8">
-                    <div
-                      onMouseEnter={() => setHoveredNode(MATRIX_DATA)}
-                      onClick={() => setSelectedNode(MATRIX_DATA)}
-                      className={`p-4 rounded-2xl border-2 transition-all duration-300 cursor-pointer max-w-sm w-full text-center relative ${
-                        activeFocus.id === MATRIX_DATA.id
-                          ? 'bg-[#11172c] border-blue-400 shadow-2xl shadow-blue-500/30 scale-105 ring-4 ring-blue-500/20'
-                          : 'bg-[#0c0f1a] border-blue-500/40 hover:border-blue-400'
-                      }`}
-                    >
-                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-mono text-[10px] mb-1">
-                        <ShieldCheck className="w-3 h-3" />
-                        TIER 01 • APEX ROOT MASTER
-                      </div>
-                      <div className="text-sm font-extrabold text-white">
-                        {MATRIX_DATA.label}
-                      </div>
-                      <div className="text-xs font-mono text-emerald-400 font-bold mt-1">
-                        ${(MATRIX_DATA.volumeUsd / 1e6).toFixed(1)}M Total Notional
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Tier 2: 2 Major Binary Branches (Left vs Right) */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
-                    
-                    {/* LEFT PRIMARY CHANNEL: PRIME OTC & CUSTODY */}
-                    <div className="space-y-4 p-4 rounded-2xl bg-[#070a12] border border-slate-800">
-                      
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                        <span className="text-[11px] font-mono font-bold text-blue-400 uppercase">
-                          BRANCH A • OTC & PRIME CUSTODY
-                        </span>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-300">
-                          Tier 02-06
-                        </span>
-                      </div>
-
-                      {/* Left Tier 2 Node */}
-                      <div
-                        onMouseEnter={() => setHoveredNode(MATRIX_DATA.children![0])}
-                        onClick={() => setSelectedNode(MATRIX_DATA.children![0])}
-                        className={`p-3 rounded-xl border transition-all cursor-pointer ${
-                          activeFocus.id === MATRIX_DATA.children![0].id
-                            ? 'bg-[#111728] border-blue-400 shadow-lg'
-                            : 'bg-[#0c0f1a] border-slate-800 hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="text-xs font-bold text-white">
-                            {MATRIX_DATA.children![0].label}
-                          </div>
-                          <span className="text-[10px] font-mono text-emerald-400 font-bold">
-                            $92.5M
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">
-                          26 Members • High Settlement
-                        </div>
-                      </div>
-
-                      {/* Left Tier 3, 4, 5, 6 Sub-Branches */}
-                      <div className="pl-4 border-l-2 border-blue-500/30 space-y-2.5 ml-2">
-                        
-                        {/* Tier 3: Zurich Enclave */}
-                        <div
-                          onMouseEnter={() => setHoveredNode(MATRIX_DATA.children![0].children![0])}
-                          onClick={() => setSelectedNode(MATRIX_DATA.children![0].children![0])}
-                          className="p-2.5 rounded-lg bg-[#0a0d17] border border-slate-800/90 hover:border-blue-500/50 transition-all cursor-pointer"
-                        >
-                          <div className="flex items-center justify-between text-xs font-semibold text-white">
-                            <span>Zurich Vault Enclave</span>
-                            <span className="text-[10px] font-mono text-blue-400">Tier 03</span>
-                          </div>
-                          <div className="text-[10px] text-slate-400 font-mono flex items-center justify-between mt-1">
-                            <span>Vol: $54.1M</span>
-                            <span className="text-emerald-400">2-of-3 Quorum</span>
-                          </div>
-                        </div>
-
-                        {/* Tier 4: OTC Block Desk */}
-                        <div
-                          onMouseEnter={() => setHoveredNode(MATRIX_DATA.children![0].children![0].children![0])}
-                          onClick={() => setSelectedNode(MATRIX_DATA.children![0].children![0].children![0])}
-                          className="p-2.5 rounded-lg bg-[#0a0d17] border border-slate-800/90 hover:border-blue-500/50 transition-all cursor-pointer"
-                        >
-                          <div className="flex items-center justify-between text-xs font-semibold text-white">
-                            <span>OTC Block Desk</span>
-                            <span className="text-[10px] font-mono text-blue-400">Tier 04</span>
-                          </div>
-                          <div className="text-[10px] text-slate-400 font-mono flex items-center justify-between mt-1">
-                            <span>Vol: $28.9M</span>
-                            <span className="text-blue-300">TWAP Algo</span>
-                          </div>
-                        </div>
-
-                        {/* Tier 5 & 6 Deep Pods Indicator */}
-                        <div
-                          onMouseEnter={() => setHoveredNode(MATRIX_DATA.children![0].children![0].children![0].children![0])}
-                          onClick={() => setSelectedNode(MATRIX_DATA.children![0].children![0].children![0].children![0])}
-                          className="p-2.5 rounded-lg bg-[#07090f] border border-dashed border-slate-800 hover:border-blue-500/50 transition-all cursor-pointer text-xs text-slate-300 flex items-center justify-between"
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                            <span>Tiers 05–06 (Arbitrage & Shards)</span>
-                          </div>
-                          <span className="text-[10px] font-mono text-emerald-400 font-bold">$16.4M</span>
-                        </div>
-
-                      </div>
-
-                    </div>
-
-                    {/* RIGHT PRIMARY CHANNEL: TREASURY & STAKING */}
-                    <div className="space-y-4 p-4 rounded-2xl bg-[#070a12] border border-slate-800">
-                      
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                        <span className="text-[11px] font-mono font-bold text-emerald-400 uppercase">
-                          BRANCH B • TREASURY & STAKING
-                        </span>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300">
-                          Tier 02-06
-                        </span>
-                      </div>
-
-                      {/* Right Tier 2 Node */}
-                      <div
-                        onMouseEnter={() => setHoveredNode(MATRIX_DATA.children![1])}
-                        onClick={() => setSelectedNode(MATRIX_DATA.children![1])}
-                        className={`p-3 rounded-xl border transition-all cursor-pointer ${
-                          activeFocus.id === MATRIX_DATA.children![1].id
-                            ? 'bg-[#0f1c19] border-emerald-400 shadow-lg'
-                            : 'bg-[#0c0f1a] border-slate-800 hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="text-xs font-bold text-white">
-                            {MATRIX_DATA.children![1].label}
-                          </div>
-                          <span className="text-[10px] font-mono text-emerald-400 font-bold">
-                            $55.8M
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">
-                          22 Members • Consensus 99.98%
-                        </div>
-                      </div>
-
-                      {/* Right Tier 3, 4, 5, 6 Sub-Branches */}
-                      <div className="pl-4 border-l-2 border-emerald-500/30 space-y-2.5 ml-2">
-                        
-                        {/* Tier 3: Singapore Validator */}
-                        <div
-                          onMouseEnter={() => setHoveredNode(MATRIX_DATA.children![1].children![0])}
-                          onClick={() => setSelectedNode(MATRIX_DATA.children![1].children![0])}
-                          className="p-2.5 rounded-lg bg-[#0a0d17] border border-slate-800/90 hover:border-emerald-500/50 transition-all cursor-pointer"
-                        >
-                          <div className="flex items-center justify-between text-xs font-semibold text-white">
-                            <span>Singapore Validator Node</span>
-                            <span className="text-[10px] font-mono text-emerald-400">Tier 03</span>
-                          </div>
-                          <div className="text-[10px] text-slate-400 font-mono flex items-center justify-between mt-1">
-                            <span>Vol: $32.2M</span>
-                            <span className="text-emerald-400 font-bold">3.92% APY</span>
-                          </div>
-                        </div>
-
-                        {/* Tier 4: PoS Delegation Pool */}
-                        <div
-                          onMouseEnter={() => setHoveredNode(MATRIX_DATA.children![1].children![0].children![0])}
-                          onClick={() => setSelectedNode(MATRIX_DATA.children![1].children![0].children![0])}
-                          className="p-2.5 rounded-lg bg-[#0a0d17] border border-slate-800/90 hover:border-emerald-500/50 transition-all cursor-pointer"
-                        >
-                          <div className="flex items-center justify-between text-xs font-semibold text-white">
-                            <span>Ethereum PoS Delegation</span>
-                            <span className="text-[10px] font-mono text-emerald-400">Tier 04</span>
-                          </div>
-                          <div className="text-[10px] text-slate-400 font-mono flex items-center justify-between mt-1">
-                            <span>Vol: $18.6M</span>
-                            <span className="text-emerald-300">Daily Harvest</span>
-                          </div>
-                        </div>
-
-                        {/* Tier 5 & 6 Staking Endpoints Indicator */}
-                        <div
-                          onMouseEnter={() => setHoveredNode(MATRIX_DATA.children![1].children![0].children![0].children![0])}
-                          onClick={() => setSelectedNode(MATRIX_DATA.children![1].children![0].children![0].children![0])}
-                          className="p-2.5 rounded-lg bg-[#07090f] border border-dashed border-slate-800 hover:border-emerald-500/50 transition-all cursor-pointer text-xs text-slate-300 flex items-center justify-between"
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                            <span>Tiers 05–06 (Sweepers & Oracles)</span>
-                          </div>
-                          <span className="text-[10px] font-mono text-emerald-400 font-bold">$11.4M</span>
-                        </div>
-
-                      </div>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-            )}
-
-            {/* Bottom Instructional Note */}
-            <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400 font-mono">
-              <span className="flex items-center gap-1.5">
-                <Info className="w-3.5 h-3.5 text-blue-400" />
-                Hover or click any node to inspect position, activity, team size, and volume.
-              </span>
-              <span className="text-slate-500 hidden sm:inline">2×6 Architecture Verified</span>
-            </div>
-
+          {/* Legend */}
+          <div className="absolute top-4 left-5 z-30 flex items-center gap-4 text-[10px] font-mono uppercase tracking-wider">
+            <span className="flex items-center gap-1.5 text-blue-400"><span className="w-2 h-2 rounded-full bg-blue-400" /> Branch A · OTC</span>
+            <span className="flex items-center gap-1.5 text-emerald-400"><span className="w-2 h-2 rounded-full bg-emerald-400" /> Branch B · Treasury</span>
           </div>
 
-          {/* ================= RIGHT COLUMN: HOVER / FOCUS NODE TELEMETRY INSPECTOR ================= */}
-          <div className="lg:col-span-4 rounded-3xl bg-[#0c101b] border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-5">
-            
-            {/* Inspector Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          {/* Graph stage — fixed ratio so the 1000×640 coordinate space maps to node percentages */}
+          <div
+            className="relative w-full aspect-[25/16] min-h-[460px] select-none"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            style={{ perspective: '1400px' }}
+          >
+            <div
+              ref={stageRef}
+              className="absolute inset-0"
+              style={{ transformStyle: 'preserve-3d', transition: 'transform 0.25s ease-out', willChange: 'transform' }}
+            >
+              {/* -------- Glowing connection + animated flow layer -------- */}
+              {/* preserveAspectRatio="none" makes SVG coords map linearly to the container,
+                  so edges stay perfectly aligned with the percentage-positioned node cards. */}
+              <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
+                {EDGES.map((e) => {
+                  const from = nodeById[e.from];
+                  const to = nodeById[e.to];
+                  if (!isNodeVisible(from) || !isNodeVisible(to)) return null;
+                  const color = BRANCH_COLOR[to.branch === 'center' ? from.branch : to.branch];
+                  const active = focusId === e.from || focusId === e.to;
+                  const d = `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
+                  const edgeId = `edge-${e.from}-${e.to}`;
+                  return (
+                    <g key={edgeId}>
+                      {/* Wide soft glow */}
+                      <path d={d} fill="none" stroke={color.stroke} strokeWidth={active ? 6 : 4} strokeOpacity={active ? 0.18 : 0.08} strokeLinecap="round" className="transition-all duration-300" />
+                      {/* Bright core line */}
+                      <path id={edgeId} d={d} fill="none" stroke={color.stroke} strokeWidth={active ? 2.6 : 1.6} strokeOpacity={active ? 0.95 : 0.4} strokeDasharray="7 7" strokeLinecap="round" className="transition-all duration-300" />
+                      {/* Animated flow packet */}
+                      <circle r={active ? 4 : 3} fill={color.dot}>
+                        <animateMotion dur={active ? '1.6s' : '2.6s'} repeatCount="indefinite">
+                          <mpath href={`#${edgeId}`} />
+                        </animateMotion>
+                      </circle>
+                    </g>
+                  );
+                })}
+              </svg>
+
+              {/* -------- Nodes -------- */}
+              {GRAPH_NODES.map((node) => {
+                if (!isNodeVisible(node)) return null;
+                const color = BRANCH_COLOR[node.branch];
+                const isFocus = focusId === node.id;
+                const isCenter = node.branch === 'center';
+                const isHub = node.tier === 2; // branch entry hub (expand/collapse control)
+                const expanded = node.branch === 'left' ? expandedLeft : expandedRight;
+
+                return (
+                  <button
+                    key={node.id}
+                    onClick={() => setFocusId(node.id)}
+                    style={{ left: pctLeft(node.x), top: pctTop(node.y) }}
+                    className={`absolute -translate-x-1/2 -translate-y-1/2 z-20 rounded-2xl border text-left transition-all duration-300 cursor-pointer ${
+                      isCenter ? 'w-40 sm:w-48 p-4' : 'w-32 sm:w-36 p-3'
+                    } ${
+                      isFocus
+                        ? `${color.bg.replace('/15', '/10')} ${color.border} shadow-2xl ring-2 ${color.ring} scale-105`
+                        : isCenter
+                          ? 'bg-[#0c1526] border-cyan-500/40 hover:border-cyan-400'
+                          : 'bg-[#080b12]/95 border-slate-800 hover:border-slate-700 hover:bg-[#0c101c]'
+                    }`}
+                  >
+                    {/* Activity pulse */}
+                    <span className="absolute -top-1.5 -right-1.5 flex h-3 w-3">
+                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${STATUS_PULSE[node.activityStatus]} opacity-70`} />
+                      <span className={`relative inline-flex rounded-full h-3 w-3 ${STATUS_PULSE[node.activityStatus]}`} />
+                    </span>
+
+                    {isCenter ? (
+                      <div className="text-center space-y-1.5">
+                        <div className="mx-auto w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center shadow-lg shadow-cyan-500/30">
+                          <Crosshair className="w-5 h-5" />
+                        </div>
+                        <div className="text-sm font-extrabold text-white">My Position</div>
+                        <div className="text-[10px] font-mono text-cyan-300">Tier 01 • Apex Master</div>
+                        <div className="text-[10px] font-mono text-emerald-400 font-bold">${(node.volumeUsd / 1e6).toFixed(1)}M Notional</div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className={`text-[9px] font-mono font-bold ${color.text}`}>{node.tierLabel}</span>
+                          {isHub && (
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              onClick={(ev) => {
+                                ev.stopPropagation();
+                                if (node.branch === 'left') setExpandedLeft((v) => !v);
+                                else setExpandedRight((v) => !v);
+                              }}
+                              className={`w-4 h-4 rounded flex items-center justify-center ${color.bg} ${color.text} hover:brightness-125`}
+                              aria-label={expanded ? 'Collapse branch' : 'Expand branch'}
+                            >
+                              {expanded ? <Minus className="w-2.5 h-2.5" /> : <Plus className="w-2.5 h-2.5" />}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] font-bold text-white leading-tight">{node.label}</div>
+                        <div className="text-[10px] text-emerald-400 font-mono mt-0.5">${(node.volumeUsd / 1e6).toFixed(1)}M</div>
+                        {isHub && !expanded && (
+                          <div className="text-[9px] text-slate-500 font-mono mt-0.5">+3 deep tiers</div>
+                        )}
+                      </>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Footer hint */}
+          <div className="relative z-20 flex items-center justify-center gap-1.5 text-xs text-slate-400 font-mono border-t border-slate-800/80 py-3">
+            <Info className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Click any node to focus it • use +/− on a branch hub to expand or collapse its deep tiers.</span>
+          </div>
+        </div>
+
+        {/* ============================ FOCUS NODE TELEMETRY ============================ */}
+        <div className="mt-8 rounded-[28px] bg-[#0c101b] border border-slate-800 p-6 sm:p-8 shadow-2xl">
+          <div className="flex items-center justify-between pb-5 border-b border-slate-800">
+            <div className="flex items-center gap-3">
+              <div className={`w-11 h-11 rounded-2xl ${BRANCH_COLOR[focusNode.branch].bg} ${BRANCH_COLOR[focusNode.branch].text} border ${BRANCH_COLOR[focusNode.branch].border} flex items-center justify-center`}>
+                {focusNode.branch === 'center' ? <Crosshair className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
+              </div>
               <div>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-400">
-                  REAL-TIME NODE TELEMETRY
+                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${BRANCH_COLOR[focusNode.branch].text}`}>
+                  Focus Node • Real-Time Telemetry
                 </span>
-                <h3 className="text-xl font-extrabold text-white mt-0.5">
-                  {activeFocus.label}
-                </h3>
-              </div>
-              <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
-                <Activity className="w-4 h-4" />
+                <h3 className="text-xl sm:text-2xl font-extrabold text-white">{focusNode.label}</h3>
               </div>
             </div>
-
-            {/* 4 Required Hover Metrics Cards: Position, Activity, Team Size, Volume */}
-            <div className="space-y-3">
-              
-              {/* 1. Position */}
-              <div className="p-3 rounded-xl bg-[#070911] border border-slate-800 space-y-1">
-                <div className="text-[10px] uppercase font-mono tracking-wider text-slate-400 flex items-center justify-between">
-                  <span>Position</span>
-                  <Layers className="w-3 h-3 text-blue-400" />
-                </div>
-                <div className="text-sm font-bold text-white">
-                  {activeFocus.position}
-                </div>
-              </div>
-
-              {/* 2. Activity */}
-              <div className="p-3 rounded-xl bg-[#070911] border border-slate-800 space-y-1">
-                <div className="text-[10px] uppercase font-mono tracking-wider text-slate-400 flex items-center justify-between">
-                  <span>Activity</span>
-                  <Activity className="w-3 h-3 text-emerald-400" />
-                </div>
-                <div className="text-sm font-bold text-emerald-400 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  {activeFocus.activity}
-                </div>
-              </div>
-
-              {/* 3. Team Size */}
-              <div className="p-3 rounded-xl bg-[#070911] border border-slate-800 space-y-1">
-                <div className="text-[10px] uppercase font-mono tracking-wider text-slate-400 flex items-center justify-between">
-                  <span>Team Size</span>
-                  <Users className="w-3 h-3 text-indigo-400" />
-                </div>
-                <div className="text-base font-extrabold text-white font-tabular">
-                  {activeFocus.teamSize} Authorized Signers & Operators
-                </div>
-              </div>
-
-              {/* 4. Volume */}
-              <div className="p-3 rounded-xl bg-[#070911] border border-slate-800 space-y-1">
-                <div className="text-[10px] uppercase font-mono tracking-wider text-slate-400 flex items-center justify-between">
-                  <span>Volume</span>
-                  <DollarSign className="w-3 h-3 text-amber-400" />
-                </div>
-                <div className="text-lg font-extrabold text-white font-tabular">
-                  ${activeFocus.volumeUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </div>
-              </div>
-
+            <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-400">
+              <Gauge className="w-4 h-4 text-blue-400" />
+              <span>Latency <strong className="text-blue-400">{focusNode.latencyMs}ms</strong></span>
             </div>
-
-            {/* Additional Institutional Quorum & Latency Specs */}
-            <div className="p-3.5 rounded-2xl bg-[#070911] border border-slate-800 space-y-2 text-xs font-mono">
-              <div className="flex items-center justify-between text-slate-400">
-                <span>Network Latency:</span>
-                <span className="text-blue-400 font-bold">{activeFocus.latencyMs} ms</span>
-              </div>
-              <div className="flex items-center justify-between text-slate-400">
-                <span>Signer Authority:</span>
-                <span className="text-slate-200 truncate max-w-[170px] text-right">
-                  {activeFocus.signers.join(', ')}
-                </span>
-              </div>
-            </div>
-
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+            <div className="p-4 rounded-2xl bg-[#070911] border border-slate-800 space-y-1">
+              <div className="text-[10px] uppercase font-mono tracking-wider text-slate-400 flex items-center justify-between">
+                <span>Position</span><Layers className="w-3 h-3 text-blue-400" />
+              </div>
+              <div className="text-sm font-bold text-white">{focusNode.position}</div>
+            </div>
+            <div className="p-4 rounded-2xl bg-[#070911] border border-slate-800 space-y-1">
+              <div className="text-[10px] uppercase font-mono tracking-wider text-slate-400 flex items-center justify-between">
+                <span>Activity</span><Activity className="w-3 h-3 text-emerald-400" />
+              </div>
+              <div className="text-sm font-bold text-emerald-400 flex items-center gap-1.5">
+                <span className={`w-2 h-2 rounded-full ${STATUS_PULSE[focusNode.activityStatus]} animate-pulse`} />
+                {focusNode.activity}
+              </div>
+            </div>
+            <div className="p-4 rounded-2xl bg-[#070911] border border-slate-800 space-y-1">
+              <div className="text-[10px] uppercase font-mono tracking-wider text-slate-400 flex items-center justify-between">
+                <span>Team Size</span><Users className="w-3 h-3 text-indigo-400" />
+              </div>
+              <div className="text-base font-extrabold text-white font-tabular">{focusNode.teamSize} Signers & Operators</div>
+            </div>
+            <div className="p-4 rounded-2xl bg-[#070911] border border-slate-800 space-y-1">
+              <div className="text-[10px] uppercase font-mono tracking-wider text-slate-400 flex items-center justify-between">
+                <span>Volume</span><DollarSign className="w-3 h-3 text-amber-400" />
+              </div>
+              <div className="text-lg font-extrabold text-white font-tabular">
+                ${focusNode.volumeUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 p-3.5 rounded-xl bg-[#070911] border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono">
+            <span className="text-slate-400">Signer Authority:</span>
+            <span className="text-slate-200">{focusNode.signers.join('  •  ')}</span>
+          </div>
         </div>
 
       </div>
