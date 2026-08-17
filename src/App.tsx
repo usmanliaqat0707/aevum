@@ -18,6 +18,7 @@ import { RequestAccessModal } from './components/Modals/RequestAccessModal';
 import { SecurityAuditModal } from './components/Modals/SecurityAuditModal';
 import { ScreenshotExportModal } from './components/ScreenshotExportModal';
 import { FloatingScreenshotWidget } from './components/FloatingScreenshotWidget';
+import { SectionConnector } from './components/SectionConnector';
 
 export default function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -62,21 +63,36 @@ export default function App() {
           onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
         />
 
+        {/* Connective tissue: Platform → How It Works (flowing line) */}
+        <SectionConnector variant="flow" />
+
         {/* 2.6 How It Works: Animated Timeline */}
         <HowItWorksTimeline
           onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
         />
 
+        {/* Connective tissue: How It Works → Liquidity (liquidity stream) */}
+        <SectionConnector variant="stream" />
+
         {/* 2.7 Liquidity Explanation: Interactive Mechanics Visualizer */}
         <LiquidityMechanicsVisualizer />
 
+        {/* Connective tissue: Liquidity → Network (stream branches into nodes) */}
+        <SectionConnector variant="branch" />
+
         {/* 2.8 Matrix Explanation: 2x6 Interactive Network Structure */}
         <MatrixExplanationVisualizer />
+
+        {/* Connective tissue: Network → App Coin (branch becomes APX token) */}
+        <SectionConnector variant="token" />
 
         {/* 2.9 App Coin: Protocol Utility Specification */}
         <AppCoinUtility
           onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
         />
+
+        {/* Connective tissue: App Coin → Transparency (structure becomes ledger blocks) */}
+        <SectionConnector variant="ledger" />
 
         {/* 2.11 Transparency Center: Verifiable Evidence & Public Repository */}
         <TransparencyCenter />
