@@ -19,7 +19,7 @@ import {
   Coins, 
   AlertCircle 
 } from 'lucide-react';
-import { EmptyStateIllustration } from './illustrations/ArchitecturalIllustrations';
+import { EmptyStateIllustration, TransparencyIllustration } from './illustrations/ArchitecturalIllustrations';
 
 interface FaqItem {
   id: string;
@@ -258,6 +258,10 @@ export const PublicFaq: React.FC = () => {
         
         {/* Section Header: Search-First Experience */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
+          {/* Shared Architectural Illustration Language (Layered Ledger / Verifiable Knowledge) */}
+          <div className="flex justify-center -mb-2">
+            <TransparencyIllustration size="md" />
+          </div>
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold uppercase tracking-wider font-mono">
             <HelpCircle className="w-3.5 h-3.5" />
             INSTITUTIONAL KNOWLEDGE BASE

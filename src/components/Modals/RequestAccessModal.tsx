@@ -89,16 +89,22 @@ export const RequestAccessModal: React.FC<RequestAccessModalProps> = ({ isOpen, 
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
             
-            <div className="space-y-1 mb-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[10px] font-bold uppercase font-mono mb-1">
-                INSTITUTIONAL ONBOARDING
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[10px] font-bold uppercase font-mono mb-1">
+                  INSTITUTIONAL ONBOARDING
+                </div>
+                <h3 className="text-2xl font-extrabold text-white">
+                  Apply for Institutional Access
+                </h3>
+                <p className="text-xs text-slate-400 font-normal">
+                  Dedicated MPC hardware enclaves, wholesale liquidity routing, and bankruptcy-remote trust custody.
+                </p>
               </div>
-              <h3 className="text-2xl font-extrabold text-white">
-                Apply for Institutional Access
-              </h3>
-              <p className="text-xs text-slate-400 font-normal">
-                Dedicated MPC hardware enclaves, wholesale liquidity routing, and bankruptcy-remote trust custody.
-              </p>
+              {/* Shared Architectural Illustration Language (KYB / Network Onboarding) */}
+              <div className="hidden sm:block flex-shrink-0 -mt-3 -mr-1">
+                <NetworkIllustration size="sm" />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
