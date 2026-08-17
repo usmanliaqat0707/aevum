@@ -18,6 +18,7 @@ import { RequestAccessModal } from './components/Modals/RequestAccessModal';
 import { SecurityAuditModal } from './components/Modals/SecurityAuditModal';
 import { ScreenshotExportModal } from './components/ScreenshotExportModal';
 import { FloatingScreenshotWidget } from './components/FloatingScreenshotWidget';
+import { Reveal } from './components/Reveal';
 
 export default function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -63,20 +64,28 @@ export default function App() {
         />
 
         {/* 2.6 How It Works: Animated Timeline */}
-        <HowItWorksTimeline
-          onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
-        />
+        <Reveal>
+          <HowItWorksTimeline
+            onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
+          />
+        </Reveal>
 
         {/* 2.7 Liquidity Explanation: Interactive Mechanics Visualizer */}
-        <LiquidityMechanicsVisualizer />
+        <Reveal>
+          <LiquidityMechanicsVisualizer />
+        </Reveal>
 
         {/* 2.8 Matrix Explanation: 2x6 Interactive Network Structure */}
-        <MatrixExplanationVisualizer />
+        <Reveal>
+          <MatrixExplanationVisualizer />
+        </Reveal>
 
         {/* 2.9 App Coin: Protocol Utility Specification */}
-        <AppCoinUtility
-          onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
-        />
+        <Reveal>
+          <AppCoinUtility
+            onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
+          />
+        </Reveal>
 
         {/* 2.11 Transparency Center: Verifiable Evidence & Public Repository */}
         <TransparencyCenter />
@@ -85,7 +94,9 @@ export default function App() {
         <EducationCenter />
 
         {/* 2.13 Public FAQ: Search-First Institutional Knowledge Base */}
-        <PublicFaq />
+        <Reveal>
+          <PublicFaq />
+        </Reveal>
 
         {/* Final Conversion Section: Dark Immersive CTA */}
         <FinalConversionSection

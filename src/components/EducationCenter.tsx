@@ -21,6 +21,7 @@ import {
   HelpCircle,
   ExternalLink
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import {
   LiquidityIllustration,
   SecurityIllustration,
@@ -353,9 +354,13 @@ export const EducationCenter: React.FC = () => {
 
         {/* Modern Editorial Article Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredArticles.map((article) => (
-            <div
+          {filteredArticles.map((article, idx) => (
+            <motion.div
               key={article.id}
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5, delay: (idx % 4) * 0.08, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => setActiveArticleModal(article)}
               className="group rounded-2xl bg-[#0b0e18] border border-slate-800 hover:border-slate-700 hover:bg-[#0e1220] transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden shadow-lg hover:shadow-2xl"
             >
@@ -406,7 +411,7 @@ export const EducationCenter: React.FC = () => {
                 </div>
               </div>
 
-            </div>
+            </motion.div>
           ))}
         </div>
 

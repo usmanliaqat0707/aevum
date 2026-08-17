@@ -25,6 +25,7 @@ import {
   SecurityIllustration, 
   NetworkIllustration 
 } from './illustrations/ArchitecturalIllustrations';
+import { motion } from 'motion/react';
 
 type TransparencySectionId = 
   | 'activity'
@@ -454,7 +455,14 @@ export const TransparencyCenter: React.FC = () => {
                   </thead>
                   <tbody className="divide-y divide-slate-800/60 text-slate-300">
                     {PLATFORM_ACTIVITY_DATA.map((tx, idx) => (
-                      <tr key={idx} className="hover:bg-[#0e1324] transition-colors">
+                      <motion.tr
+                        key={idx}
+                        initial={{ opacity: 0, y: 12 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, amount: 0.6 }}
+                        transition={{ duration: 0.4, delay: idx * 0.09, ease: 'easeOut' }}
+                        className="hover:bg-[#0e1324] transition-colors"
+                      >
                         <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap flex items-center gap-1.5">
                           <Clock className="w-3 h-3 text-slate-500" />
                           <span>{tx.timestamp}</span>
@@ -482,7 +490,7 @@ export const TransparencyCenter: React.FC = () => {
                             {tx.status}
                           </span>
                         </td>
-                      </tr>
+                      </motion.tr>
                     ))}
                   </tbody>
                 </table>

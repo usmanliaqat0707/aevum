@@ -26,6 +26,7 @@ import {
   Sparkles,
   Maximize2
 } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface PlatformOverviewProps {
   onOpenAccessRequest: () => void;
@@ -736,13 +737,17 @@ export const PlatformOverview: React.FC<PlatformOverviewProps> = ({
         {/* 3. CAPABILITY SHOWCASE SELECTORS (Wallet • Network • Analytics)           */}
         {/* ========================================================================= */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
-          {capabilities.map((cap) => {
+          {capabilities.map((cap, idx) => {
             const Icon = cap.icon;
             const isSelected = activeCapability === cap.id;
 
             return (
-              <div
+              <motion.div
                 key={cap.id}
+                initial={{ opacity: 0, y: 36 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.55, delay: idx * 0.12, ease: [0.16, 1, 0.3, 1] }}
                 onClick={() => {
                   setActiveCapability(cap.id);
                   setAutoRotate(false);
@@ -814,7 +819,7 @@ export const PlatformOverview: React.FC<PlatformOverviewProps> = ({
                   </div>
                 </div>
 
-              </div>
+              </motion.div>
             );
           })}
         </div>

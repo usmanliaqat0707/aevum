@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform } from 'motion/react';
 import { 
   ShieldCheck, 
   ArrowRight, 
@@ -50,8 +51,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   const activeAsset = LIVE_ASSETS[activeAssetIndex];
 
+  // Scroll-driven slow 3D rotation of the hero visual object.
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const coreRotateY = useTransform(scrollYProgress, [0, 1], [0, 18]);
+  const coreScale = useTransform(scrollYProgress, [0, 1], [1, 0.92]);
+
   return (
-    <section id="hero-section" className="relative pt-28 pb-16 md:pt-36 md:pb-24 overflow-hidden">
+    <section ref={heroRef} id="hero-section" className="relative pt-28 pb-16 md:pt-36 md:pb-24 overflow-hidden">
       
       {/* Background Architectural Glow and Radial Lighting */}
       <div className="absolute top-20 left-1/4 -translate-x-1/2 w-[600px] h-[450px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
@@ -183,8 +190,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {/* Ambient Background Radial Lighting Behind the Object */}
             <div className="absolute -inset-4 bg-gradient-to-tr from-blue-600/10 via-emerald-500/05 to-transparent rounded-3xl blur-2xl pointer-events-none" />
             
-            {/* 3D Vector & Particle Financial Infrastructure Core */}
-            <HeroVisualCore onInteractCore={onOpenAccessRequest} />
+            {/* 3D Vector & Particle Financial Infrastructure Core (slow scroll-driven rotation) */}
+            <motion.div
+              style={{ rotateY: coreRotateY, scale: coreScale, transformPerspective: 1600 }}
+              className="w-full flex items-center justify-center"
+            >
+              <HeroVisualCore onInteractCore={onOpenAccessRequest} />
+            </motion.div>
           </div>
 
         </div>
