@@ -18,6 +18,7 @@ import { RequestAccessModal } from './components/Modals/RequestAccessModal';
 import { SecurityAuditModal } from './components/Modals/SecurityAuditModal';
 import { ScreenshotExportModal } from './components/ScreenshotExportModal';
 import { FloatingScreenshotWidget } from './components/FloatingScreenshotWidget';
+import { SecurityCenter } from './components/SecurityCenter';
 
 export default function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -46,54 +47,61 @@ export default function App() {
 
       {/* Main Website Flow */}
       <main className="relative z-10">
-        {/* 1. Hero Section: Explain -> Build Trust -> Reduce Uncertainty -> Convert */}
+        {/* Narrative sequence: What → Why → How → Infrastructure → Network → Utility → Proof → Education → Conversion */}
+
+        {/* 01 · Hero */}
         <HeroSection
           onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
           onOpenSecurityModal={() => setSecurityModalOpen(true)}
         />
 
-        {/* 2. Trust Proof & Auditor Credentials */}
+        {/* 02 · Trust / Security Strip */}
         <TrustProofBar
           onOpenSecurity={() => setSecurityModalOpen(true)}
         />
 
-        {/* 2.5 Platform Overview: Wallet, Network, Analytics */}
+        {/* 03 · What the Platform Does  +  04 · Core Architecture (Platform Architecture & Core Capabilities) */}
         <PlatformOverview
           onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
         />
 
-        {/* 2.6 How It Works: Animated Timeline */}
+        {/* 05 · How It Works */}
         <HowItWorksTimeline
           onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
         />
 
-        {/* 2.7 Liquidity Explanation: Interactive Mechanics Visualizer */}
+        {/* 06 · Liquidity Infrastructure */}
         <LiquidityMechanicsVisualizer />
 
-        {/* 2.8 Matrix Explanation: 2x6 Interactive Network Structure */}
+        {/* 07 · 2×6 Network */}
         <MatrixExplanationVisualizer />
 
-        {/* 2.9 App Coin: Protocol Utility Specification */}
+        {/* 08 · App Coin Utility */}
         <AppCoinUtility
           onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
         />
 
-        {/* 2.11 Transparency Center: Verifiable Evidence & Public Repository */}
+        {/* 09 · Transparency Center */}
         <TransparencyCenter />
 
-        {/* 2.12 Education Center: Editorial Knowledge Repository */}
+        {/* 10 · Security Center */}
+        <SecurityCenter
+          onOpenSecurityModal={() => setSecurityModalOpen(true)}
+        />
+
+        {/* 11 · Education Center */}
         <EducationCenter />
 
-        {/* 2.13 Public FAQ: Search-First Institutional Knowledge Base */}
+        {/* 12 · FAQ */}
         <PublicFaq />
 
-        {/* Final Conversion Section: Dark Immersive CTA */}
+        {/* 13 · Final CTA */}
         <FinalConversionSection
           onOpenAuth={handleOpenAuth}
           onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
         />
 
-        {/* Footer with Regulatory Disclosures and Status */}
+        {/* 14 · Footer */}
         <Footer
           onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
           onOpenSecurityModal={() => setSecurityModalOpen(true)}
