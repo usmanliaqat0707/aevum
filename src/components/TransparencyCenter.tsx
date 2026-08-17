@@ -367,10 +367,10 @@ export const TransparencyCenter: React.FC = () => {
               <Database className="w-3.5 h-3.5" />
               VERIFIABLE EVIDENCE & PUBLIC REPOSITORY
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight">
               Transparency Center
             </h2>
-            <p className="text-sm sm:text-base text-slate-300 font-normal max-w-2xl">
+            <p className="text-base sm:text-lg text-slate-300 font-normal max-w-2xl">
               Live cryptographic telemetry, complete independent audit reports, governing legal charters, itemized fee schedules, and infrastructure uptime logs.
             </p>
           </div>

@@ -79,7 +79,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-extrabold tracking-tight text-white leading-[1.12]">
+            <h1 className="text-5xl sm:text-6xl lg:text-[64px] font-extrabold tracking-tight text-white leading-[1.05]">
               A clearer way to manage{' '}
               <span className="bg-gradient-to-r from-blue-400 via-blue-200 to-indigo-300 bg-clip-text text-transparent">
                 digital assets
@@ -88,7 +88,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </h1>
 
             {/* Supporting Explanation */}
-            <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl">
+            <p className="text-lg sm:text-xl text-slate-300 font-normal leading-relaxed max-w-xl">
               Enterprise custody, liquidity routing, and automated balance operations unified into a single verifiable system. Built with multi-party computation, instant settlement rails, and zero-compromise security controls.
             </p>
 

@@ -218,11 +218,11 @@ export const FinalConversionSection: React.FC<FinalConversionSectionProps> = ({
 
         {/* Large Statement mandated by user */}
         <div className="space-y-4 max-w-4xl mx-auto">
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
+          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1]">
             Know where you stand. <br className="hidden sm:inline" />
             <span className="text-slate-100">Understand what happens next.</span>
           </h2>
-          <p className="text-base sm:text-lg text-slate-300 font-normal max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-slate-300 font-normal max-w-2xl mx-auto leading-relaxed">
             Eliminate single-point failure risks with mathematical threshold MPC custody, 
             verifiable on-chain solvency proofs, and deterministic sub-millisecond execution.
           </p>

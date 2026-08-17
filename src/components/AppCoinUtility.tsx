@@ -54,10 +54,10 @@ export const AppCoinUtility: React.FC<AppCoinUtilityProps> = ({ onOpenAccessRequ
             <Coins className="w-3.5 h-3.5" />
             PROTOCOL UTILITY SPECIFICATION
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
             Institutional App Coin (APEX-UTL)
           </h2>
-          <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed">
+          <p className="text-lg sm:text-xl text-slate-300 font-normal leading-relaxed">
             A non-speculative, technical coordination token designed solely for programmatic gas relaying, fee discounting tiers, API rate metering, and governance attestations.
           </p>
         </div>
