@@ -21,6 +21,7 @@ import { FloatingScreenshotWidget } from './components/FloatingScreenshotWidget'
 import { SectionConnector } from './components/SectionConnector';
 import { AmbientBackground } from './components/AmbientBackground';
 import { Reveal } from './components/Reveal';
+import { SecurityCenter } from './components/SecurityCenter';
 
 export default function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -52,79 +53,78 @@ export default function App() {
 
       {/* Main Website Flow */}
       <main className="relative z-10">
-        {/* 1. Hero Section: Explain -> Build Trust -> Reduce Uncertainty -> Convert */}
+        {/* Narrative sequence: What → Why → How → Infrastructure → Network → Utility → Proof → Education → Conversion */}
+
+        {/* 01 · Hero */}
         <HeroSection
           onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
           onOpenSecurityModal={() => setSecurityModalOpen(true)}
         />
 
-        {/* 2. Trust Proof & Auditor Credentials */}
+        {/* 02 · Trust / Security Strip */}
         <TrustProofBar
           onOpenSecurity={() => setSecurityModalOpen(true)}
         />
 
-        {/* 2.5 Platform Overview: Wallet, Network, Analytics */}
+        {/* 03 · What the Platform Does  +  04 · Core Architecture (Platform Architecture & Core Capabilities) */}
         <PlatformOverview
           onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
         />
 
-        {/* Connective tissue: Platform → How It Works (flowing line) */}
+        {/* 05 · How It Works — connective tissue: Platform → How It Works (flowing line) */}
         <SectionConnector variant="flow" />
-
-        {/* 2.6 How It Works: Animated Timeline */}
         <Reveal>
           <HowItWorksTimeline
             onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
           />
         </Reveal>
 
-        {/* Connective tissue: How It Works → Liquidity (liquidity stream) */}
+        {/* 06 · Liquidity Infrastructure — connective tissue: How It Works → Liquidity (stream) */}
         <SectionConnector variant="stream" />
-
-        {/* 2.7 Liquidity Explanation: Interactive Mechanics Visualizer */}
         <Reveal>
           <LiquidityMechanicsVisualizer />
         </Reveal>
 
-        {/* Connective tissue: Liquidity → Network (stream branches into nodes) */}
+        {/* 07 · 2×6 Network — connective tissue: Liquidity → Network (branches into nodes) */}
         <SectionConnector variant="branch" />
-
-        {/* 2.8 Matrix Explanation: 2x6 Interactive Network Structure */}
         <Reveal>
           <MatrixExplanationVisualizer />
         </Reveal>
 
-        {/* Connective tissue: Network → App Coin (branch becomes APX token) */}
+        {/* 08 · App Coin Utility — connective tissue: Network → App Coin (APX token) */}
         <SectionConnector variant="token" />
-
-        {/* 2.9 App Coin: Protocol Utility Specification */}
         <Reveal>
           <AppCoinUtility
             onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
           />
         </Reveal>
 
-        {/* Connective tissue: App Coin → Transparency (structure becomes ledger blocks) */}
+        {/* Connective tissue: App Coin → Transparency (ledger blocks) */}
         <SectionConnector variant="ledger" />
 
-        {/* 2.11 Transparency Center: Verifiable Evidence & Public Repository */}
+        {/* 09 · Transparency Center */}
         <TransparencyCenter />
 
-        {/* 2.12 Education Center: Editorial Knowledge Repository */}
+        {/* 10 · Security Center */}
+        <SecurityCenter
+          onOpenSecurityModal={() => setSecurityModalOpen(true)}
+        />
+
+        {/* 11 · Education Center */}
         <EducationCenter />
 
-        {/* 2.13 Public FAQ: Search-First Institutional Knowledge Base */}
+        {/* 12 · FAQ */}
         <Reveal>
           <PublicFaq />
         </Reveal>
 
-        {/* Final Conversion Section: Dark Immersive CTA */}
+        {/* 13 · Final CTA */}
         <FinalConversionSection
           onOpenAuth={handleOpenAuth}
           onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
         />
 
-        {/* Footer with Regulatory Disclosures and Status */}
+        {/* 14 · Footer */}
         <Footer
           onOpenAccessRequest={() => setAccessRequestModalOpen(true)}
           onOpenSecurityModal={() => setSecurityModalOpen(true)}
