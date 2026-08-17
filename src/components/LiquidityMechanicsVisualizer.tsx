@@ -37,8 +37,9 @@ interface ElementExplanation {
   category: 'Input Rail' | 'Core Engine' | 'Output Destination';
   badge: string;
   summary: string;
-  howItWorks: string[];
-  mechanicsBreakdown: string;
+  enters: string;
+  happens: string;
+  exits: string;
   transparencyGuarantee: string;
 }
 
@@ -49,12 +50,9 @@ const EXPLANATIONS: Record<FlowElementId, ElementExplanation> = {
     category: 'Input Rail',
     badge: 'Source Phase',
     summary: 'How deposits and liquidity arrive in the system without compromising ownership.',
-    howItWorks: [
-      'Deposits originate from institutional fiat wire rails (Fedwire, SEPA Instant) or on-chain wallet transfers.',
-      'Funds are assigned directly to segregated, bankruptcy-remote accounts using unique cryptographic derivation paths.',
-      'Assets enter the pool only after multi-party computation (MPC) and AML/Travel Rule policy checks pass.'
-    ],
-    mechanicsBreakdown: 'Incoming capital does not get commingled with company operating funds. Every deposit creates an immutable cryptographic receipt and increments the entity\'s isolated ledger balance.',
+    enters: 'Institutional fiat wires (Fedwire, SEPA Instant) and on-chain wallet transfers.',
+    happens: 'MPC and AML / Travel Rule checks assign funds to segregated, bankruptcy-remote accounts via unique cryptographic derivation paths — never commingled with operating funds.',
+    exits: 'A 1:1-backed balance credited to your isolated ledger, ready for the core pool.',
     transparencyGuarantee: '1:1 asset backing verified through continuous Merkle tree solvency proofs.'
   },
   'central-pool': {
@@ -63,12 +61,9 @@ const EXPLANATIONS: Record<FlowElementId, ElementExplanation> = {
     category: 'Core Engine',
     badge: 'Aggregation Engine',
     summary: 'The mathematical reserve core that aggregates depth, facilitates settlement, and prevents fragmentation.',
-    howItWorks: [
-      'Acts as a virtual unified liquidity layer connecting 45+ spot venues, dark pools, and non-custodial staking contracts.',
-      'Determines the most cost-effective path for orders using real-time Smart Order Routing (SOR) algorithms.',
-      'Maintains internal balance accounting to minimize unnecessary on-chain gas transfers until final net settlement.'
-    ],
-    mechanicsBreakdown: 'Rather than holding funds in dozens of disparate exchange accounts, the central pool serves as a coordinated coordination engine. Assets stay locked in audited smart contracts or MPC cold vaults until explicitly directed by authorized signers.',
+    enters: 'Verified deposits and recalled liquidity from 45+ venues, dark pools, and staking contracts.',
+    happens: 'A unified virtual reserve layer aggregates depth and routes every order along the cheapest path via real-time Smart Order Routing, netting internal balances before touching chain.',
+    exits: 'Cost-optimal net flows dispatched outward to execution, allocations, rewards, and fees.',
     transparencyGuarantee: 'All pool allocations are verifiable in real-time on-chain and through public auditor attestations.'
   },
   activity: {
@@ -77,12 +72,9 @@ const EXPLANATIONS: Record<FlowElementId, ElementExplanation> = {
     category: 'Output Destination',
     badge: 'Operational Flow',
     summary: 'How capital is deployed to execute transactions, balance books, and settle trades.',
-    howItWorks: [
-      'Capital flows outward to fulfill buy and sell orders across connected institutional venues.',
-      'Smart Order Routing breaks large block trades into smaller algorithmic child orders (TWAP / VWAP) to eliminate market slippage.',
-      'Zero-knowledge proofs and atomic relays guarantee that trades execute with sub-millisecond precision without counterparty risk.'
-    ],
-    mechanicsBreakdown: 'When a trade is triggered, the pool routes the transaction to the venue with the lowest net spread. Once executed, the acquired assets immediately settle back into the entity\'s designated custody sub-account.',
+    enters: 'Order instructions and routed capital from the central pool.',
+    happens: 'SOR splits block trades into TWAP / VWAP child orders; atomic relays and zero-knowledge proofs settle sub-millisecond with no counterparty risk.',
+    exits: 'Filled positions settle back into your designated custody sub-account with full telemetry.',
     transparencyGuarantee: 'Full execution telemetry logs with timestamped transaction hashes and slippage reports.'
   },
   allocations: {
@@ -91,12 +83,9 @@ const EXPLANATIONS: Record<FlowElementId, ElementExplanation> = {
     category: 'Output Destination',
     badge: 'Custodial Partition',
     summary: 'Structured distribution of capital into segregated cold, warm, and treasury partitions.',
-    howItWorks: [
-      'Entities set customizable percentage rules for how their capital is distributed (e.g., 60% Cold Vault, 30% Staking, 10% Warm Relayer).',
-      'Automated rebalancing sweeps excess liquidity from active operational accounts back into deep offline MPC cold storage.',
-      'Sub-accounts remain completely partitioned so one organization\'s risk parameters never affect another.'
-    ],
-    mechanicsBreakdown: 'Allocations function like dedicated sub-ledgers. Capital designated for long-term reserves is held in multi-signature time-locked enclaves, while operational capital is kept in warm relayers for immediate settlement.',
+    enters: 'Capital directed by your percentage rules (e.g., 60% Cold Vault, 30% Staking, 10% Warm Relayer).',
+    happens: 'Automated rebalancing sweeps idle liquidity into multi-signature, time-locked MPC cold storage across fully partitioned sub-ledgers.',
+    exits: 'Segregated cold, warm, and treasury reserves, each requiring quorum authorization.',
     transparencyGuarantee: 'Every allocation rule requires quorum authorization from your designated institutional signers.'
   },
   rewards: {
@@ -105,12 +94,9 @@ const EXPLANATIONS: Record<FlowElementId, ElementExplanation> = {
     category: 'Output Destination',
     badge: 'Protocol Accrual',
     summary: 'The transparent distribution of consensus staking yields and network incentives.',
-    howItWorks: [
-      'Capital allocated to prime validator nodes participates directly in proof-of-stake blockchain consensus.',
-      'Yield is generated natively by the underlying blockchain protocols through transaction validation and block production.',
-      'Earned rewards are harvested daily and distributed directly to the entity\'s balance without intermediaries taking a spread.'
-    ],
-    mechanicsBreakdown: 'Staking rewards come purely from network protocol inflation and transaction fee distribution—not from lending, borrowing, or speculative rehypothecation. Your underlying principal remains in non-custodial custody.',
+    enters: 'Principal delegated to prime proof-of-stake validator nodes.',
+    happens: 'Yield accrues natively from protocol inflation and block production — no lending, borrowing, or rehypothecation of your principal.',
+    exits: 'Rewards harvested daily and credited directly to your balance, with principal untouched.',
     transparencyGuarantee: 'Yield rates reflect pure on-chain protocol metrics with zero synthetic leverage or hidden lockups.'
   },
   fees: {
@@ -119,15 +105,38 @@ const EXPLANATIONS: Record<FlowElementId, ElementExplanation> = {
     category: 'Output Destination',
     badge: 'Transparent Costs',
     summary: 'A clear accounting of gas costs, custodian maintenance, and relayer fees.',
-    howItWorks: [
-      'Underlying blockchain network fees (gas) required to broadcast and finalize on-chain transactions.',
-      'Sub-millisecond relayer routing and dark pool connectivity costs.',
-      'Enterprise security SLAs including Lloyd\'s specie insurance premiums and FIPS 140-3 HSM attestation upkeep.'
-    ],
-    mechanicsBreakdown: 'Fees are deducted strictly on a per-transaction basis or via scheduled transparent billing tiers. There are zero hidden maker/taker markups, withdrawal penalties, or unexpected slippage buffers.',
+    enters: 'Per-transaction gas, relayer routing, and enterprise security SLA costs.',
+    happens: 'Costs are metered transparently — zero hidden maker/taker markups, withdrawal penalties, or slippage buffers.',
+    exits: 'An itemized, verifiable receipt published before every transaction confirmation.',
     transparencyGuarantee: 'Itemized fee breakdown published before every transaction confirmation with verifiable receipts.'
   }
 };
+
+/** Shared accent tokens per node so the graph and the reveal panel stay in sync. */
+const NODE_ACCENT: Record<FlowElementId, { text: string; bg: string; border: string; ring: string; stroke: string; dot: string }> = {
+  inputs: { text: 'text-blue-400', bg: 'bg-blue-500/15', border: 'border-blue-500/50', ring: 'ring-blue-500/30', stroke: '#3B82F6', dot: '#60A5FA' },
+  'central-pool': { text: 'text-cyan-300', bg: 'bg-cyan-500/15', border: 'border-cyan-400/60', ring: 'ring-cyan-500/25', stroke: '#22D3EE', dot: '#67E8F9' },
+  activity: { text: 'text-cyan-400', bg: 'bg-cyan-500/15', border: 'border-cyan-500/50', ring: 'ring-cyan-500/30', stroke: '#38BDF8', dot: '#38BDF8' },
+  allocations: { text: 'text-indigo-400', bg: 'bg-indigo-500/15', border: 'border-indigo-500/50', ring: 'ring-indigo-500/30', stroke: '#818CF8', dot: '#818CF8' },
+  rewards: { text: 'text-emerald-400', bg: 'bg-emerald-500/15', border: 'border-emerald-500/50', ring: 'ring-emerald-500/30', stroke: '#34D399', dot: '#34D399' },
+  fees: { text: 'text-amber-400', bg: 'bg-amber-500/15', border: 'border-amber-500/50', ring: 'ring-amber-500/30', stroke: '#F59E0B', dot: '#FBBF24' },
+};
+
+/** Output nodes that fan out from the core, with their graph geometry (in the 600x450 viewBox). */
+const OUTPUT_NODES: Array<{
+  id: FlowElementId;
+  label: string;
+  sub: string;
+  icon: React.ElementType;
+  leftPct: number;
+  topPct: number;
+  path: string;
+}> = [
+  { id: 'activity', label: 'Activity', sub: 'Execution • SOR', icon: Activity, leftPct: 85, topPct: 18, path: 'M 352 208 Q 430 120 476 88' },
+  { id: 'allocations', label: 'Allocations', sub: 'Cold • Warm • Reserves', icon: PieChart, leftPct: 85, topPct: 39, path: 'M 356 220 Q 430 195 476 178' },
+  { id: 'rewards', label: 'Rewards', sub: 'Validator Yield', icon: Gift, leftPct: 85, topPct: 61, path: 'M 356 230 Q 430 258 476 272' },
+  { id: 'fees', label: 'Fees', sub: 'Gas • Custody SLAs', icon: Receipt, leftPct: 85, topPct: 82, path: 'M 352 242 Q 430 336 476 362' },
+];
 
 export const LiquidityMechanicsVisualizer: React.FC = () => {
   const [selectedElement, setSelectedElement] = useState<FlowElementId>('central-pool');
@@ -135,6 +144,9 @@ export const LiquidityMechanicsVisualizer: React.FC = () => {
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   const currentExplanation = EXPLANATIONS[selectedElement];
+  const accent = NODE_ACCENT[selectedElement];
+  // Stream speed reacts to the selected simulation mode (faster = higher velocity).
+  const streamDur = activeSimulationMode === 'high-volume' ? 1.1 : activeSimulationMode === 'staking-focused' ? 3.2 : 2.2;
 
   return (
     <section id="liquidity-explanation-section" className="py-20 sm:py-28 bg-[#06080e] relative overflow-hidden border-t border-slate-800/80">
@@ -199,284 +211,226 @@ export const LiquidityMechanicsVisualizer: React.FC = () => {
           </div>
         </div>
 
-        {/* Interactive Visual Canvas & Inspector Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* ================= LEFT / TOP: INTERACTIVE FLOW DIAGRAM ================= */}
-          <div className="lg:col-span-7 rounded-3xl bg-[#0a0d16] border border-slate-800 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-            
-            {/* SVG Visual Flow Graph */}
-            <div className="relative w-full aspect-[4/3] min-h-[380px] flex items-center justify-center select-none">
-              
-              {/* Dynamic Connecting SVG Paths with Flowing Packet Animation */}
-              <svg 
-                ref={svgRef} 
-                viewBox="0 0 600 450" 
-                className="absolute inset-0 w-full h-full pointer-events-none"
-              >
-                <defs>
-                  <linearGradient id="inputToPoolGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#60A5FA" stopOpacity="0.8" />
-                  </linearGradient>
+        {/* ===================== SIGNATURE CENTERPIECE: Liquidity Engine Graph ===================== */}
+        <div className="relative rounded-[28px] bg-[#0a0d16] border border-slate-800 shadow-2xl overflow-hidden">
+          {/* Ambient volumetric glow + isometric grid */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] bg-blue-600/12 rounded-full blur-[130px] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:30px_30px] opacity-15 pointer-events-none" />
 
-                  <linearGradient id="poolToActivityGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#60A5FA" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.8" />
-                  </linearGradient>
-
-                  <linearGradient id="poolToAllocGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#60A5FA" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#818CF8" stopOpacity="0.8" />
-                  </linearGradient>
-
-                  <linearGradient id="poolToRewardsGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#60A5FA" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#34D399" stopOpacity="0.8" />
-                  </linearGradient>
-
-                  <linearGradient id="poolToFeesGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#60A5FA" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.8" />
-                  </linearGradient>
-                </defs>
-
-                {/* Path 1: Input -> Central Pool */}
-                <path
-                  d="M 120 225 L 230 225"
-                  fill="none"
-                  stroke="url(#inputToPoolGrad)"
-                  strokeWidth="3"
-                  strokeDasharray="6 4"
-                  className="animate-[dash_2s_linear_infinite]"
-                />
-
-                {/* Path 2: Central Pool -> Activity (Top Right) */}
-                <path
-                  d="M 370 200 Q 420 120 480 90"
-                  fill="none"
-                  stroke="url(#poolToActivityGrad)"
-                  strokeWidth="2.5"
-                  strokeDasharray="6 4"
-                />
-
-                {/* Path 3: Central Pool -> Allocations (Mid-Top Right) */}
-                <path
-                  d="M 370 215 Q 430 180 480 180"
-                  fill="none"
-                  stroke="url(#poolToAllocGrad)"
-                  strokeWidth="2.5"
-                  strokeDasharray="6 4"
-                />
-
-                {/* Path 4: Central Pool -> Rewards (Mid-Bottom Right) */}
-                <path
-                  d="M 370 235 Q 430 270 480 270"
-                  fill="none"
-                  stroke="url(#poolToRewardsGrad)"
-                  strokeWidth="2.5"
-                  strokeDasharray="6 4"
-                />
-
-                {/* Path 5: Central Pool -> Fees (Bottom Right) */}
-                <path
-                  d="M 370 250 Q 420 330 480 360"
-                  fill="none"
-                  stroke="url(#poolToFeesGrad)"
-                  strokeWidth="2.5"
-                  strokeDasharray="6 4"
-                />
-              </svg>
-
-              {/* --- 1. INPUTS NODE (Left) --- */}
-              <div 
-                onClick={() => setSelectedElement('inputs')}
-                className={`absolute left-4 top-1/2 -translate-y-1/2 w-32 p-3 rounded-2xl border transition-all cursor-pointer z-10 ${
-                  selectedElement === 'inputs'
-                    ? 'bg-[#101728] border-blue-500 shadow-xl shadow-blue-500/20 ring-2 ring-blue-500/30 scale-105'
-                    : 'bg-[#080b12] border-slate-800 hover:border-slate-700 hover:bg-[#0c101c]'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center">
-                    <Coins className="w-3.5 h-3.5" />
-                  </div>
-                  <span className="text-[9px] font-mono text-blue-400 font-bold">INFLOW</span>
-                </div>
-                <div className="text-xs font-bold text-white">Inputs</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Wires, On-Chain</div>
-              </div>
-
-              {/* --- 2. CENTRAL LIQUIDITY POOL NODE (Center) --- */}
-              <div 
-                onClick={() => setSelectedElement('central-pool')}
-                className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-3xl border-2 transition-all cursor-pointer z-20 flex flex-col items-center justify-center p-3 text-center ${
-                  selectedElement === 'central-pool'
-                    ? 'bg-[#11172a] border-blue-400 shadow-2xl shadow-blue-500/30 ring-4 ring-blue-500/20 scale-105'
-                    : 'bg-[#0a0e1a] border-blue-500/40 hover:border-blue-400 hover:bg-[#0e1322]'
-                }`}
-              >
-                {/* Core Water Droplet / Liquidity Pulse */}
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-600 text-white flex items-center justify-center mb-1.5 shadow-lg shadow-blue-500/30">
-                  <Droplets className="w-5 h-5" />
-                </div>
-                <div className="text-xs font-bold text-white tracking-wide">
-                  Central Liquidity Pool
-                </div>
-                <div className="text-[10px] text-emerald-400 font-mono mt-0.5 font-semibold">
-                  $48.2B Depth
-                </div>
-                <span className="mt-1 text-[9px] font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-300">
-                  MPC Segregated
-                </span>
-              </div>
-
-              {/* --- 3. OUTPUT 1: ACTIVITY (Top Right) --- */}
-              <div 
-                onClick={() => setSelectedElement('activity')}
-                className={`absolute right-4 top-8 w-36 p-3 rounded-2xl border transition-all cursor-pointer z-10 ${
-                  selectedElement === 'activity'
-                    ? 'bg-[#0f1a26] border-cyan-500 shadow-xl shadow-cyan-500/20 ring-2 ring-cyan-500/30 scale-105'
-                    : 'bg-[#080b12] border-slate-800 hover:border-slate-700 hover:bg-[#0c101c]'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
-                    <Activity className="w-3 h-3" />
-                  </div>
-                  <span className="text-[9px] font-mono text-cyan-400">OUTPUT</span>
-                </div>
-                <div className="text-xs font-bold text-white">Activity</div>
-                <div className="text-[10px] text-slate-400">Execution, SOR Orders</div>
-              </div>
-
-              {/* --- 4. OUTPUT 2: ALLOCATIONS (Mid-Top Right) --- */}
-              <div 
-                onClick={() => setSelectedElement('allocations')}
-                className={`absolute right-4 top-[125px] w-36 p-3 rounded-2xl border transition-all cursor-pointer z-10 ${
-                  selectedElement === 'allocations'
-                    ? 'bg-[#131628] border-indigo-500 shadow-xl shadow-indigo-500/20 ring-2 ring-indigo-500/30 scale-105'
-                    : 'bg-[#080b12] border-slate-800 hover:border-slate-700 hover:bg-[#0c101c]'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
-                    <PieChart className="w-3 h-3" />
-                  </div>
-                  <span className="text-[9px] font-mono text-indigo-400">OUTPUT</span>
-                </div>
-                <div className="text-xs font-bold text-white">Allocations</div>
-                <div className="text-[10px] text-slate-400">Cold, Warm & Reserves</div>
-              </div>
-
-              {/* --- 5. OUTPUT 3: REWARDS (Mid-Bottom Right) --- */}
-              <div 
-                onClick={() => setSelectedElement('rewards')}
-                className={`absolute right-4 bottom-[125px] w-36 p-3 rounded-2xl border transition-all cursor-pointer z-10 ${
-                  selectedElement === 'rewards'
-                    ? 'bg-[#0d1c18] border-emerald-500 shadow-xl shadow-emerald-500/20 ring-2 ring-emerald-500/30 scale-105'
-                    : 'bg-[#080b12] border-slate-800 hover:border-slate-700 hover:bg-[#0c101c]'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                    <Gift className="w-3 h-3" />
-                  </div>
-                  <span className="text-[9px] font-mono text-emerald-400">OUTPUT</span>
-                </div>
-                <div className="text-xs font-bold text-white">Rewards</div>
-                <div className="text-[10px] text-slate-400">Validator Staking Yield</div>
-              </div>
-
-              {/* --- 6. OUTPUT 4: FEES (Bottom Right) --- */}
-              <div 
-                onClick={() => setSelectedElement('fees')}
-                className={`absolute right-4 bottom-8 w-36 p-3 rounded-2xl border transition-all cursor-pointer z-10 ${
-                  selectedElement === 'fees'
-                    ? 'bg-[#1c160b] border-amber-500 shadow-xl shadow-amber-500/20 ring-2 ring-amber-500/30 scale-105'
-                    : 'bg-[#080b12] border-slate-800 hover:border-slate-700 hover:bg-[#0c101c]'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
-                    <Receipt className="w-3 h-3" />
-                  </div>
-                  <span className="text-[9px] font-mono text-amber-400">OUTPUT</span>
-                </div>
-                <div className="text-xs font-bold text-white">Fees</div>
-                <div className="text-[10px] text-slate-400">Gas & Custody SLAs</div>
-              </div>
-
-            </div>
-
-            {/* Bottom Instructional Hint */}
-            <div className="mt-4 text-center text-xs text-slate-400 font-mono flex items-center justify-center gap-1.5 border-t border-slate-800/80 pt-3">
-              <Info className="w-3.5 h-3.5 text-blue-400" />
-              <span>Click any box above to inspect mechanical specifications.</span>
-            </div>
-
+          {/* Top label: LIQUIDITY down into the structure */}
+          <div className="absolute top-5 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1 text-[11px] font-mono uppercase tracking-[0.2em] text-blue-300/80">
+            <span className="flex items-center gap-1.5"><Droplets className="w-3.5 h-3.5" /> Liquidity</span>
+            <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
           </div>
 
-          {/* ================= RIGHT: PLAIN-LANGUAGE EXPLANATION PANEL ================= */}
-          <div className="lg:col-span-5 rounded-3xl bg-[#0c101a] border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-5">
-            
-            {/* Header with Selected Node Title & Badge */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="space-y-0.5">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-400">
+          {/* Graph stage — fixed 4/3 ratio so the 600x450 SVG maps to node percentages */}
+          <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] min-h-[460px] select-none">
+
+            {/* Animated stream + connector layer (keyed by mode so speed changes restart cleanly) */}
+            <svg
+              key={activeSimulationMode}
+              ref={svgRef}
+              viewBox="0 0 600 450"
+              preserveAspectRatio="xMidYMid meet"
+              className="absolute inset-0 w-full h-full pointer-events-none"
+            >
+              <defs>
+                <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#22D3EE" stopOpacity="0.5" />
+                  <stop offset="100%" stopColor="#22D3EE" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+
+              {/* Core focal glow */}
+              <circle cx="300" cy="225" r="130" fill="url(#coreGlow)" />
+
+              {/* Inputs -> Core connector + streams */}
+              {(() => {
+                const inputActive = selectedElement === 'inputs' || selectedElement === 'central-pool';
+                return (
+                  <>
+                    <path
+                      id="path-inputs"
+                      d="M 150 225 L 250 225"
+                      fill="none"
+                      stroke={NODE_ACCENT.inputs.stroke}
+                      strokeWidth={inputActive ? 3.5 : 2}
+                      strokeOpacity={inputActive ? 0.9 : 0.35}
+                      strokeDasharray="7 6"
+                      className="transition-all duration-300"
+                    />
+                    {[0, 1].map((k) => (
+                      <circle key={k} r="3.6" fill={NODE_ACCENT.inputs.dot}>
+                        <animateMotion dur={`${streamDur}s`} begin={`${(streamDur / 2) * k}s`} repeatCount="indefinite">
+                          <mpath href="#path-inputs" />
+                        </animateMotion>
+                      </circle>
+                    ))}
+                  </>
+                );
+              })()}
+
+              {/* Core -> each output connector + streams */}
+              {OUTPUT_NODES.map((node, ni) => {
+                const acc = NODE_ACCENT[node.id];
+                const active = selectedElement === node.id || selectedElement === 'central-pool';
+                const pathId = `path-${node.id}`;
+                return (
+                  <g key={node.id}>
+                    <path
+                      id={pathId}
+                      d={node.path}
+                      fill="none"
+                      stroke={acc.stroke}
+                      strokeWidth={active ? 3.5 : 2}
+                      strokeOpacity={active ? 0.9 : 0.3}
+                      strokeDasharray="7 6"
+                      className="transition-all duration-300"
+                    />
+                    {[0, 1].map((k) => (
+                      <circle key={k} r="3.4" fill={acc.dot}>
+                        <animateMotion dur={`${streamDur}s`} begin={`${(streamDur / 2) * k + ni * 0.15}s`} repeatCount="indefinite">
+                          <mpath href={`#${pathId}`} />
+                        </animateMotion>
+                      </circle>
+                    ))}
+                  </g>
+                );
+              })}
+            </svg>
+
+            {/* ---- INPUT NODE (left) ---- */}
+            <button
+              onClick={() => setSelectedElement('inputs')}
+              style={{ left: '13%', top: '50%' }}
+              className={`absolute -translate-x-1/2 -translate-y-1/2 w-28 sm:w-32 p-3 rounded-2xl border text-left transition-all cursor-pointer z-20 ${
+                selectedElement === 'inputs'
+                  ? `bg-[#101728] ${NODE_ACCENT.inputs.border} shadow-xl ring-2 ${NODE_ACCENT.inputs.ring} scale-105`
+                  : 'bg-[#080b12]/95 border-slate-800 hover:border-slate-700 hover:bg-[#0c101c]'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <div className={`w-7 h-7 rounded-lg ${NODE_ACCENT.inputs.bg} ${NODE_ACCENT.inputs.text} flex items-center justify-center`}>
+                  <Coins className="w-3.5 h-3.5" />
+                </div>
+                <span className={`text-[9px] font-mono font-bold ${NODE_ACCENT.inputs.text}`}>ENTERS</span>
+              </div>
+              <div className="text-xs font-bold text-white">Inputs</div>
+              <div className="text-[10px] text-slate-400 mt-0.5">Wires • On-Chain</div>
+            </button>
+
+            {/* ---- CENTRAL CORE ---- */}
+            <button
+              onClick={() => setSelectedElement('central-pool')}
+              style={{ left: '50%', top: '50%' }}
+              className={`group absolute -translate-x-1/2 -translate-y-1/2 z-20 w-40 h-40 sm:w-44 sm:h-44 rounded-full border-2 flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all ${
+                selectedElement === 'central-pool'
+                  ? 'bg-[#0c1526] border-cyan-400 shadow-2xl shadow-cyan-500/30 ring-4 ring-cyan-500/20 scale-105'
+                  : 'bg-[#0a0e1a] border-cyan-500/40 hover:border-cyan-400 hover:bg-[#0e1322]'
+              }`}
+            >
+              {/* Rotating calibration ring + pulse aura */}
+              <div className="absolute -inset-3 rounded-full border border-cyan-400/25 border-dashed animate-[spin_18s_linear_infinite] pointer-events-none" />
+              <div className="absolute -inset-6 rounded-full bg-cyan-500/10 blur-2xl animate-pulse pointer-events-none" />
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center mb-1.5 shadow-lg shadow-cyan-500/30 group-hover:scale-110 transition-transform">
+                <Droplets className="w-6 h-6" />
+              </div>
+              <div className="text-[11px] font-bold text-white tracking-wide leading-tight">
+                Central<br />Liquidity Core
+              </div>
+              <div className="text-[10px] text-emerald-400 font-mono mt-1 font-semibold">$48.2B Depth</div>
+            </button>
+
+            {/* ---- OUTPUT NODES (fan out to the right) ---- */}
+            {OUTPUT_NODES.map((node) => {
+              const acc = NODE_ACCENT[node.id];
+              const Icon = node.icon;
+              const active = selectedElement === node.id;
+              return (
+                <button
+                  key={node.id}
+                  onClick={() => setSelectedElement(node.id)}
+                  style={{ left: `${node.leftPct}%`, top: `${node.topPct}%` }}
+                  className={`absolute -translate-x-1/2 -translate-y-1/2 w-32 sm:w-36 p-3 rounded-2xl border text-left transition-all cursor-pointer z-20 ${
+                    active
+                      ? `bg-[#0f1626] ${acc.border} shadow-xl ring-2 ${acc.ring} scale-105`
+                      : 'bg-[#080b12]/95 border-slate-800 hover:border-slate-700 hover:bg-[#0c101c]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <div className={`w-6 h-6 rounded-lg ${acc.bg} ${acc.text} flex items-center justify-center`}>
+                      <Icon className="w-3 h-3" />
+                    </div>
+                    <span className={`text-[9px] font-mono ${acc.text}`}>EXITS</span>
+                  </div>
+                  <div className="text-xs font-bold text-white">{node.label}</div>
+                  <div className="text-[10px] text-slate-400">{node.sub}</div>
+                </button>
+              );
+            })}
+
+            {/* Bottom-right distribution hint */}
+            <div className="absolute bottom-4 right-6 z-20 text-[10px] font-mono uppercase tracking-widest text-slate-500 hidden sm:flex items-center gap-1.5">
+              Distribution <ArrowUpRight className="w-3 h-3" />
+            </div>
+          </div>
+
+          {/* Footer hint */}
+          <div className="relative z-20 flex items-center justify-center gap-1.5 text-xs text-slate-400 font-mono border-t border-slate-800/80 py-3">
+            <Info className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Click any node to trace what enters, what happens, and what exits.</span>
+          </div>
+        </div>
+
+        {/* ===================== REVEAL: What Enters / Happens / Exits ===================== */}
+        <div className="mt-8 rounded-[28px] bg-[#0c101a] border border-slate-800 p-6 sm:p-8 shadow-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-slate-800">
+            <div className="flex items-center gap-3">
+              <div className={`w-11 h-11 rounded-2xl ${accent.bg} ${accent.text} border ${accent.border} flex items-center justify-center`}>
+                <Droplets className="w-5 h-5" />
+              </div>
+              <div>
+                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${accent.text}`}>
                   {currentExplanation.badge} • {currentExplanation.category}
                 </span>
-                <h3 className="text-2xl font-extrabold text-white">
-                  {currentExplanation.title}
-                </h3>
-              </div>
-
-              <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
-                <HelpCircle className="w-4 h-4" />
+                <h3 className="text-xl sm:text-2xl font-extrabold text-white">{currentExplanation.title}</h3>
               </div>
             </div>
-
-            {/* Summary */}
-            <p className="text-sm text-slate-300 leading-relaxed font-medium">
-              {currentExplanation.summary}
-            </p>
-
-            {/* How It Works Bulleted Breakdown */}
-            <div className="space-y-2.5">
-              <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
-                Operational Mechanics:
-              </div>
-              {currentExplanation.howItWorks.map((item, idx) => (
-                <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-300">
-                  <div className="w-4 h-4 rounded-full bg-blue-500/15 text-blue-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <CheckCircle2 className="w-3 h-3" />
-                  </div>
-                  <span className="leading-snug">{item}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Plain Language Plumbing Summary Box */}
-            <div className="p-4 rounded-2xl bg-[#070910] border border-slate-800 space-y-1.5 text-xs">
-              <div className="text-slate-400 font-mono uppercase text-[10px] font-semibold">
-                Plumbing Transparency:
-              </div>
-              <p className="text-slate-300 leading-relaxed">
-                {currentExplanation.mechanicsBreakdown}
-              </p>
-            </div>
-
-            {/* Verification Guarantee */}
-            <div className="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 flex items-center gap-3 text-xs text-emerald-300">
-              <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-              <div>
-                <strong className="text-white block text-[11px] font-mono uppercase">Solvency Guarantee</strong>
-                <span>{currentExplanation.transparencyGuarantee}</span>
-              </div>
-            </div>
-
+            <p className="text-sm text-slate-400 max-w-md sm:text-right">{currentExplanation.summary}</p>
           </div>
 
+          {/* Three facets: Enters / Happens / Exits */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <div className="p-4 rounded-2xl bg-[#070910] border border-slate-800 space-y-2">
+              <div className="flex items-center gap-2 text-blue-400 text-xs font-mono font-bold uppercase tracking-wider">
+                <ArrowDown className="w-4 h-4" /> What Enters
+              </div>
+              <p className="text-sm text-slate-300 leading-relaxed">{currentExplanation.enters}</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#070910] border border-slate-800 space-y-2">
+              <div className="flex items-center gap-2 text-cyan-300 text-xs font-mono font-bold uppercase tracking-wider">
+                <RefreshCw className="w-4 h-4" /> What Happens
+              </div>
+              <p className="text-sm text-slate-300 leading-relaxed">{currentExplanation.happens}</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#070910] border border-slate-800 space-y-2">
+              <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono font-bold uppercase tracking-wider">
+                <ArrowUpRight className="w-4 h-4" /> What Exits
+              </div>
+              <p className="text-sm text-slate-300 leading-relaxed">{currentExplanation.exits}</p>
+            </div>
+          </div>
+
+          {/* Guarantee footer */}
+          <div className="mt-5 p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 flex items-center gap-3 text-xs text-emerald-300">
+            <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+            <div>
+              <strong className="text-white block text-[11px] font-mono uppercase">Solvency Guarantee</strong>
+              <span>{currentExplanation.transparencyGuarantee}</span>
+            </div>
+          </div>
         </div>
 
       </div>
