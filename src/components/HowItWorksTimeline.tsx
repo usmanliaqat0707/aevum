@@ -236,8 +236,10 @@ export const HowItWorksTimeline: React.FC<HowItWorksTimelineProps> = ({ onOpenAc
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
 
           {/* ---------- LEFT: Pinned Cinematic Stage (desktop) ---------- */}
-          <div className="hidden lg:block lg:sticky lg:top-24 self-start">
-            <div className="relative rounded-3xl bg-[#0b0e18]/95 border border-slate-800 shadow-2xl p-8 overflow-hidden min-h-[540px] flex flex-col">
+          {/* Outer grid item stretches to the full (tall) row height; the inner card
+              is sticky, giving it room to stay pinned while the right panels scroll. */}
+          <div className="hidden lg:block">
+            <div className="lg:sticky lg:top-24 relative rounded-3xl bg-[#0b0e18]/95 border border-slate-800 shadow-2xl p-8 overflow-hidden min-h-[540px] flex flex-col">
               {/* Accent ambient glow (transitions with active step) */}
               <div className={`absolute -top-24 -right-24 w-96 h-96 rounded-full blur-[120px] pointer-events-none transition-colors duration-700 ${accent.glow}`} />
               <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:26px_26px] opacity-15 pointer-events-none" />
