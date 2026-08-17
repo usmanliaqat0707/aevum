@@ -209,10 +209,13 @@ export const HowItWorksTimeline: React.FC<HowItWorksTimelineProps> = ({ onOpenAc
   const accent = ACCENT[activeStep.accent];
 
   return (
-    <section id="how-it-works-section" className="py-24 sm:py-32 relative bg-[#07090f] overflow-hidden">
+    <section id="how-it-works-section" className="py-24 sm:py-32 relative bg-[#07090f]">
       
-      {/* Background Radial Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-blue-600/06 rounded-full blur-[160px] pointer-events-none" />
+      {/* Background Radial Glow — clipped by an inner wrapper so the section itself
+          keeps overflow:visible (otherwise it would break the sticky pinned stage). */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-blue-600/06 rounded-full blur-[160px]" />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
