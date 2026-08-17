@@ -207,7 +207,7 @@ export const HeroVisualCore: React.FC<HeroVisualCoreProps> = ({ onInteractCore }
 
     const categories: Array<'money' | 'network' | 'security' | 'data'> = ['money', 'network', 'security', 'data'];
 
-    particlesRef.current = Array.from({ length: 85 }, (_, i) => {
+    particlesRef.current = Array.from({ length: 150 }, (_, i) => {
       const cat = categories[i % categories.length];
       const pal = colors[cat];
       return {
@@ -216,8 +216,8 @@ export const HeroVisualCore: React.FC<HeroVisualCoreProps> = ({ onInteractCore }
         sourceIndex: Math.floor(Math.random() * 4),
         targetIndex: -1, // -1 means central core
         t: Math.random(),
-        speed: 0.0035 + Math.random() * 0.0055,
-        size: 1.8 + Math.random() * 2.4,
+        speed: 0.0035 + Math.random() * 0.0065,
+        size: 2.0 + Math.random() * 2.8,
         color: pal[i % pal.length],
         pulse: Math.random() * Math.PI * 2,
         category: cat
@@ -241,22 +241,34 @@ export const HeroVisualCore: React.FC<HeroVisualCoreProps> = ({ onInteractCore }
       // Outer boundary ellipse
       ctx.strokeStyle = 'rgba(59, 130, 246, 0.07)';
       ctx.beginPath();
-      ctx.ellipse(cx, cy, width * 0.44, height * 0.42, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx, cy, width * 0.46, height * 0.44, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Mid security orbital ring
-      ctx.strokeStyle = 'rgba(16, 185, 129, 0.12)';
-      ctx.setLineDash([8, 12]);
+      // Prominent glowing SECURITY RING (bright, animated) around the core
+      ctx.save();
+      ctx.shadowColor = 'rgba(16, 185, 129, 0.6)';
+      ctx.shadowBlur = 18;
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.55)';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([14, 10]);
       ctx.beginPath();
-      ctx.ellipse(cx, cy, width * 0.35, height * 0.33, time * 0.1, 0, Math.PI * 2);
+      ctx.ellipse(cx, cy, width * 0.34, height * 0.32, time * 0.12, 0, Math.PI * 2);
       ctx.stroke();
       ctx.setLineDash([]);
+      // Counter-rotating thin companion ring for depth
+      ctx.shadowBlur = 8;
+      ctx.strokeStyle = 'rgba(52, 211, 153, 0.25)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, width * 0.30, height * 0.285, -time * 0.18, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
 
       // Inner fast spinning telemetry rings
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.18)';
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
       ctx.setLineDash([4, 8]);
       ctx.beginPath();
-      ctx.ellipse(cx, cy, width * 0.22, height * 0.20, -time * 0.2, 0, Math.PI * 2);
+      ctx.ellipse(cx, cy, width * 0.21, height * 0.19, -time * 0.24, 0, Math.PI * 2);
       ctx.stroke();
       ctx.setLineDash([]);
       ctx.restore();
@@ -292,8 +304,14 @@ export const HeroVisualCore: React.FC<HeroVisualCoreProps> = ({ onInteractCore }
         ctx.moveTo(cx, cy);
         ctx.quadraticCurveTo(cpx, cpy, n.x, n.y);
         ctx.strokeStyle = grad;
-        ctx.lineWidth = isDimmed ? 1 : 2.5;
+        ctx.lineWidth = isDimmed ? 1.5 : 4;
+        ctx.shadowColor = n.category === 'money' ? 'rgba(245,158,11,0.5)'
+          : n.category === 'network' ? 'rgba(59,130,246,0.5)'
+          : n.category === 'security' ? 'rgba(16,185,129,0.5)'
+          : 'rgba(6,182,212,0.5)';
+        ctx.shadowBlur = isDimmed ? 0 : 12;
         ctx.stroke();
+        ctx.shadowBlur = 0;
 
         // High-energy glow pass
         if (!isDimmed) {
@@ -386,13 +404,13 @@ export const HeroVisualCore: React.FC<HeroVisualCoreProps> = ({ onInteractCore }
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative w-full h-[580px] sm:h-[640px] lg:h-[680px] select-none flex items-center justify-center overflow-hidden rounded-3xl bg-[#06080e]/90 border border-slate-800 shadow-2xl backdrop-blur-md"
+      className="relative w-full h-[600px] sm:h-[720px] lg:h-[780px] select-none flex items-center justify-center overflow-hidden rounded-[32px] bg-[#06080e]/90 border border-slate-800 shadow-2xl backdrop-blur-md"
     >
       
       {/* Background Volumetric Glows */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[620px] h-[620px] bg-blue-600/20 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-[360px] h-[360px] bg-amber-500/12 rounded-full blur-[130px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-[360px] h-[360px] bg-emerald-500/12 rounded-full blur-[130px] pointer-events-none" />
 
       {/* Top Header Bar with Live Institutional Telemetry */}
       <div className="absolute top-4 left-4 right-4 z-30 flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-[#090d18]/90 border border-slate-800/80 backdrop-blur-xl shadow-lg">
@@ -449,15 +467,16 @@ export const HeroVisualCore: React.FC<HeroVisualCoreProps> = ({ onInteractCore }
         className="relative z-20 group cursor-pointer"
       >
         {/* Ambient Pulsing Aura */}
-        <div className="absolute -inset-14 rounded-full bg-blue-600/25 blur-3xl group-hover:bg-blue-500/40 transition-all duration-700 animate-pulse" />
-        <div className="absolute -inset-8 rounded-full bg-emerald-500/15 blur-2xl group-hover:bg-emerald-400/25 transition-all duration-700" />
+        <div className="absolute -inset-20 rounded-full bg-blue-600/25 blur-3xl group-hover:bg-blue-500/40 transition-all duration-700 animate-pulse" />
+        <div className="absolute -inset-12 rounded-full bg-emerald-500/15 blur-2xl group-hover:bg-emerald-400/25 transition-all duration-700" />
 
-        {/* External Rotating Cryptographic Calibration Ring */}
-        <div className="absolute -inset-10 rounded-full border border-blue-500/20 border-dashed animate-[spin_24s_linear_infinite] pointer-events-none" />
-        <div className="absolute -inset-16 rounded-full border border-slate-700/30 animate-[spin_36s_linear_infinite_reverse] pointer-events-none" />
+        {/* External Rotating Cryptographic Calibration Rings (Security halo) */}
+        <div className="absolute -inset-12 rounded-full border-2 border-emerald-400/30 border-dashed animate-[spin_20s_linear_infinite] pointer-events-none shadow-[0_0_40px_rgba(16,185,129,0.25)]" />
+        <div className="absolute -inset-16 rounded-full border border-blue-500/25 border-dashed animate-[spin_28s_linear_infinite_reverse] pointer-events-none" />
+        <div className="absolute -inset-24 rounded-full border border-slate-700/30 animate-[spin_44s_linear_infinite] pointer-events-none" />
 
         {/* 3D Multi-Layered Central Isometric Cube / Crystalline Enclave */}
-        <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-[32px] bg-gradient-to-br from-[#12192e] via-[#090d19] to-[#04060b] border-2 border-blue-500/60 p-2 shadow-2xl backdrop-blur-2xl group-hover:border-blue-400 group-hover:scale-105 transition-all duration-500 ring-8 ring-blue-500/10 flex items-center justify-center">
+        <div className="relative w-56 h-56 sm:w-64 sm:h-64 lg:w-72 lg:h-72 rounded-[36px] bg-gradient-to-br from-[#12192e] via-[#090d19] to-[#04060b] border-2 border-blue-500/60 p-2.5 shadow-2xl backdrop-blur-2xl group-hover:border-blue-400 group-hover:scale-105 transition-all duration-500 ring-8 ring-blue-500/10 flex items-center justify-center">
           
           {/* Inner Crystalline Chamber */}
           <div className="w-full h-full rounded-[24px] bg-[#080c18]/90 border border-slate-700/80 p-4 flex flex-col items-center justify-between text-center relative overflow-hidden">
@@ -478,10 +497,10 @@ export const HeroVisualCore: React.FC<HeroVisualCoreProps> = ({ onInteractCore }
 
             {/* Central Glowing Icon / Quantum Lock Core */}
             <div className="relative my-1">
-              <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-500 to-emerald-500 p-0.5 shadow-xl shadow-blue-500/35 flex items-center justify-center group-hover:rotate-6 transition-transform duration-500">
-                <div className="w-full h-full bg-[#070a14] rounded-[14px] flex items-center justify-center relative">
-                  <Cpu className="w-8 h-8 text-blue-400 group-hover:text-white group-hover:scale-110 transition-all duration-300" />
-                  <div className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-[#070a14]" />
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-500 to-emerald-500 p-0.5 shadow-xl shadow-blue-500/40 flex items-center justify-center group-hover:rotate-6 transition-transform duration-500">
+                <div className="w-full h-full bg-[#070a14] rounded-[18px] flex items-center justify-center relative">
+                  <Cpu className="w-10 h-10 sm:w-12 sm:h-12 text-blue-400 group-hover:text-white group-hover:scale-110 transition-all duration-300" />
+                  <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-[#070a14] animate-pulse" />
                 </div>
               </div>
             </div>

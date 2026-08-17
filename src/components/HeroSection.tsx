@@ -60,10 +60,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Main 2-Column Hero Grid: Left Content + Right 3D Scene */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-10 items-center">
           
           {/* ================= LEFT COLUMN ================= */}
-          <div className="lg:col-span-6 space-y-6 text-left">
+          <div className="lg:col-span-5 space-y-7 text-left">
             
             {/* Eyebrow */}
             <div className="flex items-center gap-2.5">
@@ -79,7 +79,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-extrabold tracking-tight text-white leading-[1.12]">
+            <h1 className="text-[40px] sm:text-6xl lg:text-[64px] font-extrabold tracking-tight text-white leading-[1.05]">
               A clearer way to manage{' '}
               <span className="bg-gradient-to-r from-blue-400 via-blue-200 to-indigo-300 bg-clip-text text-transparent">
                 digital assets
@@ -131,57 +131,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
             </div>
 
-            {/* Trust Metadata Badges */}
-            <div className="pt-5 border-t border-slate-800/80 mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-              
-              {/* Trust Metadata Item 1 */}
-              <div className="p-3 rounded-xl bg-[#0d101a]/80 border border-slate-800/80 space-y-1">
-                <div className="flex items-center gap-2 text-white font-bold text-xs">
-                  <div className="p-1 rounded-md bg-blue-500/10 text-blue-400">
-                    <Lock className="w-3.5 h-3.5" />
-                  </div>
-                  <span>MPC-CMP Custody</span>
-                </div>
-                <p className="text-[11px] text-slate-400 leading-snug">
-                  Keyless 3-of-4 quorum with $750M specie insurance.
-                </p>
-              </div>
-
-              {/* Trust Metadata Item 2 */}
-              <div className="p-3 rounded-xl bg-[#0d101a]/80 border border-slate-800/80 space-y-1">
-                <div className="flex items-center gap-2 text-white font-bold text-xs">
-                  <div className="p-1 rounded-md bg-emerald-500/10 text-emerald-400">
-                    <Eye className="w-3.5 h-3.5" />
-                  </div>
-                  <span>Continuous Merkle</span>
-                </div>
-                <p className="text-[11px] text-slate-400 leading-snug">
-                  Verifiable reserve proofs and real-time ledger attestations.
-                </p>
-              </div>
-
-              {/* Trust Metadata Item 3 */}
-              <div className="p-3 rounded-xl bg-[#0d101a]/80 border border-slate-800/80 space-y-1">
-                <div className="flex items-center gap-2 text-white font-bold text-xs">
-                  <div className="p-1 rounded-md bg-cyan-500/10 text-cyan-400">
-                    <Sliders className="w-3.5 h-3.5" />
-                  </div>
-                  <span>Policy Firewall</span>
-                </div>
-                <p className="text-[11px] text-slate-400 leading-snug">
-                  Hardware biometric gates & dynamic velocity limits.
-                </p>
-              </div>
-
-            </div>
-
           </div>
 
           {/* ================= RIGHT COLUMN ================= */}
           {/* Large Abstract Financial Infrastructure Visualization */}
-          <div className="lg:col-span-6 relative flex items-center justify-center">
+          <div className="lg:col-span-7 relative flex items-center justify-center">
             {/* Ambient Background Radial Lighting Behind the Object */}
-            <div className="absolute -inset-4 bg-gradient-to-tr from-blue-600/10 via-emerald-500/05 to-transparent rounded-3xl blur-2xl pointer-events-none" />
+            <div className="absolute -inset-6 bg-gradient-to-tr from-blue-600/15 via-emerald-500/08 to-transparent rounded-[40px] blur-3xl pointer-events-none" />
             
             {/* 3D Vector & Particle Financial Infrastructure Core */}
             <HeroVisualCore onInteractCore={onOpenAccessRequest} />
