@@ -268,10 +268,10 @@ export const PublicFaq: React.FC = () => {
             <HelpCircle className="w-3.5 h-3.5" />
             INSTITUTIONAL KNOWLEDGE BASE
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight">
             Frequently Asked Questions
           </h2>
-          <p className="text-sm sm:text-base text-slate-300 font-normal">
+          <p className="text-base sm:text-lg text-slate-300 font-normal">
             Instant answers with full architectural flowcharts, operational scenario examples, and linked technical publications.
           </p>
 

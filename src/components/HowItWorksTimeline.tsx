@@ -225,10 +225,10 @@ export const HowItWorksTimeline: React.FC<HowItWorksTimelineProps> = ({ onOpenAc
             <Layers className="w-3.5 h-3.5" />
             OPERATIONAL LIFECYCLE
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
             How It Works
           </h2>
-          <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed">
+          <p className="text-lg sm:text-xl text-slate-300 font-normal leading-relaxed">
             From organizational onboarding to multi-signature threshold management—a transparent, mathematically verified 6-stage lifecycle.
           </p>
         </div>

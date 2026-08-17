@@ -154,10 +154,10 @@ export const MatrixExplanationVisualizer: React.FC = () => {
             <Network className="w-3.5 h-3.5" />
             ORGANIZATIONAL NETWORK ARCHITECTURE
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
             2×6 Matrix Network Structure
           </h2>
-          <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed">
+          <p className="text-lg sm:text-xl text-slate-300 font-normal leading-relaxed">
             A living topology of your institutional matrix — two branches spanning six tiers of depth — mapped around your own position at the center.
           </p>
         </div>
