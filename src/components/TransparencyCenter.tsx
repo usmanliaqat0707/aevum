@@ -18,7 +18,10 @@ import {
   Database,
   Lock,
   Cpu,
-  RefreshCw
+  RefreshCw,
+  Fingerprint,
+  Hash,
+  BadgeCheck
 } from 'lucide-react';
 import { 
   TransparencyIllustration, 
@@ -50,58 +53,131 @@ export const TransparencyCenter: React.FC = () => {
     { id: 'notices' as const, label: 'Historical Notices', icon: History, count: '14 Bulletins' },
   ];
 
-  // 1. Platform Activity Data (Live Institutional Ledger)
+  // 1. Platform Activity Data (Live Institutional Event Ledger)
   const PLATFORM_ACTIVITY_DATA = [
     {
-      txHash: '0x8f2a49b29c01824a1e948c3b994827104b209a82',
+      live: true,
+      eventId: 'EVT-8F2A-0912',
       timestamp: '2026-08-15 13:14:02 UTC',
+      category: 'Settlement',
       type: 'MPC Quorum Settlement',
-      asset: 'BTC (Cold to Warm Relayer)',
-      amount: '142.50000000 BTC',
+      detail: 'BTC · Cold → Warm Relayer · 142.5000 BTC',
       valueUsd: '$12,825,000.00',
-      sourceRef: 'Zurich Enclave #01',
-      status: 'Finalized (Block #892,104)'
+      source: 'Zurich Enclave #01',
+      txHash: '0x8f2a49b29c01824a1e948c3b994827104b209a82',
+      verification: 'Quorum-Signed',
+      auditRef: 'SOC2-EY-2026-Q2'
     },
     {
-      txHash: '0x3c911894bf8201a0937c4018274a91920b7c9120',
+      live: true,
+      eventId: 'EVT-3C91-0911',
       timestamp: '2026-08-15 13:12:44 UTC',
+      category: 'Execution',
       type: 'SOR Liquidity Execution',
-      asset: 'USDC (Cross-Venue TWAP)',
-      amount: '5,000,000.00 USDC',
+      detail: 'USDC · Cross-Venue TWAP · Slippage −0.02 bps',
       valueUsd: '$5,000,000.00',
-      sourceRef: 'Dark Pool Aggregator V4',
-      status: 'Finalized (Slippage: -0.02 bps)'
+      source: 'Dark Pool Aggregator V4',
+      txHash: '0x3c911894bf8201a0937c4018274a91920b7c9120',
+      verification: 'Atomic-Relayed',
+      auditRef: 'OZ-SOR-RELAY-2026'
     },
     {
-      txHash: '0xaa18471b092847c20184b91048201948ba2019c4',
+      live: false,
+      eventId: 'EVT-AA18-0908',
       timestamp: '2026-08-15 13:08:19 UTC',
+      category: 'Attestation',
       type: 'Merkle Solvency Root Broadcast',
-      asset: 'Consolidated Reserves (BTC/ETH/USDC)',
-      amount: '100.0% Reserve Ratio',
+      detail: 'Consolidated Reserves · 100.0% Ratio · Root 0x4f…9a',
       valueUsd: '$48,291,480.00',
-      sourceRef: 'Chainlink Oracle Feed #84',
-      status: 'Attested (Root: 0x4f...9a)'
+      source: 'Chainlink Oracle Feed #84',
+      txHash: '0xaa18471b092847c20184b91048201948ba2019c4',
+      verification: 'Merkle-Attested',
+      auditRef: 'BDO-POR-2026-Q2'
     },
     {
-      txHash: '0x7109284b102948201c9018472019482019482019',
+      live: false,
+      eventId: 'EVT-7109-0901',
       timestamp: '2026-08-15 13:01:55 UTC',
+      category: 'Staking',
       type: 'Consensus Validator Delegation',
-      asset: 'ETH (Validator Staking Shard)',
-      amount: '1,280.00000000 ETH',
+      detail: 'ETH · Validator Staking Shard · Epoch #392,104',
       valueUsd: '$4,480,000.00',
-      sourceRef: 'Singapore Node Pod #03',
-      status: 'Finalized (Epoch #392,104)'
+      source: 'Singapore Node Pod #03',
+      txHash: '0x7109284b102948201c9018472019482019482019',
+      verification: 'Chain-Final',
+      auditRef: 'CMVP-CERT-#4928'
     },
     {
-      txHash: '0xbb29401847201948201948201948201948201948',
+      live: false,
+      eventId: 'EVT-BB29-0849',
       timestamp: '2026-08-15 12:49:10 UTC',
-      type: 'FATF Travel Rule Compliance Dispatch',
-      asset: 'EURC Institutional Transfer',
-      amount: '2,500,000.00 EURC',
+      category: 'Compliance',
+      type: 'FATF Travel Rule Dispatch',
+      detail: 'EURC · Inter-VASP Transfer · 2,500,000.00 EURC',
       valueUsd: '$2,750,000.00',
-      sourceRef: 'TRP V2 Gateway (Swiss VASP)',
-      status: 'Attested (ZKP Verified)'
+      source: 'TRP V2 Gateway (Swiss VASP)',
+      txHash: '0xbb29401847201948201948201948201948201948',
+      verification: 'ZK-Verified',
+      auditRef: 'FATF-R16 / TRP-V2'
+    },
+    {
+      live: false,
+      eventId: 'EVT-D4C1-0842',
+      timestamp: '2026-08-15 12:42:37 UTC',
+      category: 'Settlement',
+      type: 'Fedwire Fiat On-Ramp Reconciliation',
+      detail: 'USD · Qualified Custodian Wire · Segregated Credit',
+      valueUsd: '$9,600,000.00',
+      source: 'NY Qualified Custody Escrow',
+      txHash: '0xd4c1094820194820194820194820194820194820',
+      verification: 'Quorum-Signed',
+      auditRef: 'SOC2-EY-2026-Q2'
+    },
+    {
+      live: false,
+      eventId: 'EVT-19AF-0836',
+      timestamp: '2026-08-15 12:36:11 UTC',
+      category: 'Staking',
+      type: 'Daily Staking Reward Harvest',
+      detail: 'ETH · Auto-Compounder · 3.92% APY Accrual',
+      valueUsd: '$184,204.11',
+      source: 'PoS Delegation Pool',
+      txHash: '0x19af094820194820194820194820194820194820',
+      verification: 'Chain-Final',
+      auditRef: 'CMVP-CERT-#4928'
+    },
+    {
+      live: false,
+      eventId: 'EVT-6E20-0828',
+      timestamp: '2026-08-15 12:28:54 UTC',
+      category: 'Attestation',
+      type: 'FIPS Enclave Health Attestation',
+      detail: 'HSM · Zero-Trace Memory Wipe Proof · Zurich #01',
+      valueUsd: '—',
+      source: 'FIPS 140-3 HSM #01',
+      txHash: '0x6e20094820194820194820194820194820194820',
+      verification: 'Merkle-Attested',
+      auditRef: 'CMVP-CERT-#4928'
     }
+  ];
+
+  // Category accent tokens (Bloomberg-terminal style category chips)
+  const CATEGORY_ACCENT: Record<string, { text: string; bg: string; border: string }> = {
+    Settlement: { text: 'text-blue-300', bg: 'bg-blue-500/10', border: 'border-blue-500/30' },
+    Execution: { text: 'text-cyan-300', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30' },
+    Attestation: { text: 'text-emerald-300', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' },
+    Staking: { text: 'text-indigo-300', bg: 'bg-indigo-500/10', border: 'border-indigo-500/30' },
+    Compliance: { text: 'text-amber-300', bg: 'bg-amber-500/10', border: 'border-amber-500/30' },
+  };
+
+  // Live institutional KPI strip (dashboard header metrics)
+  const KPI_METRICS = [
+    { label: 'Live Feed', value: 'STREAMING', accent: 'text-emerald-400', pulse: true },
+    { label: 'Latest Block', value: '#892,104', accent: 'text-white', pulse: false },
+    { label: 'Reserve Ratio', value: '100.0%', accent: 'text-emerald-400', pulse: false },
+    { label: 'Events · 24h', value: '14,291', accent: 'text-white', pulse: false },
+    { label: 'Avg Finality', value: '18 ms', accent: 'text-blue-400', pulse: false },
+    { label: 'Infra Uptime', value: '99.998%', accent: 'text-white', pulse: false },
   ];
 
   // 2. Audit Reports Data
@@ -385,6 +461,37 @@ export const TransparencyCenter: React.FC = () => {
           </div>
         </div>
 
+        {/* Institutional KPI Strip (Bloomberg / Stripe terminal aesthetic) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 rounded-2xl border border-slate-800 bg-[#080b14] overflow-hidden mb-8 divide-x divide-y sm:divide-y-0 divide-slate-800">
+          {KPI_METRICS.map((kpi) => (
+            <div key={kpi.label} className="p-4 flex flex-col gap-1">
+              <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                {kpi.pulse && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+                {kpi.label}
+              </div>
+              <div className={`text-lg font-extrabold font-mono ${kpi.accent}`}>{kpi.value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Trust Statement Band */}
+        <div className="relative rounded-2xl border border-blue-500/25 bg-gradient-to-r from-[#0a0f1e] via-[#080b16] to-[#0a0f1e] px-6 py-6 sm:py-7 mb-10 overflow-hidden">
+          <div className="absolute -top-16 -right-10 w-64 h-64 bg-blue-600/10 rounded-full blur-[90px] pointer-events-none" />
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="w-11 h-11 rounded-2xl bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center flex-shrink-0">
+              <Fingerprint className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                Every important event leaves a trace.
+              </div>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
+                Custody, execution, staking, and compliance — each action emits a timestamped, categorized, and independently verifiable record, linked to its governing audit.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Institutional Navigation Tab Strip (Data Center Layout) */}
         <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 border-b border-slate-800/80 no-scrollbar">
           {SECTIONS.map((sec) => {
@@ -438,52 +545,94 @@ export const TransparencyCenter: React.FC = () => {
                 </div>
               </div>
 
-              {/* Activity Data Table */}
+              {/* Institutional Event Ledger Table */}
               <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-[#05070e]">
-                <table className="w-full text-left text-xs font-mono">
+                <table className="w-full text-left text-xs font-mono min-w-[960px]">
                   <thead className="bg-[#0b0e1b] text-slate-400 uppercase text-[10px] border-b border-slate-800 tracking-wider">
                     <tr>
+                      <th className="py-3 px-4">Live</th>
                       <th className="py-3 px-4">Timestamp (UTC)</th>
-                      <th className="py-3 px-4">Transaction / Root Hash</th>
-                      <th className="py-3 px-4">Event Type</th>
-                      <th className="py-3 px-4">Asset / Allocation</th>
+                      <th className="py-3 px-4">Event ID</th>
+                      <th className="py-3 px-4">Category</th>
+                      <th className="py-3 px-4">Event / Detail</th>
                       <th className="py-3 px-4 text-right">Value (USD)</th>
-                      <th className="py-3 px-4">Source Ref</th>
-                      <th className="py-3 px-4 text-right">Status</th>
+                      <th className="py-3 px-4">Source</th>
+                      <th className="py-3 px-4">Verification</th>
+                      <th className="py-3 px-4">Audit Ref</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                    {PLATFORM_ACTIVITY_DATA.map((tx, idx) => (
-                      <tr key={idx} className="hover:bg-[#0e1324] transition-colors">
-                        <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap flex items-center gap-1.5">
-                          <Clock className="w-3 h-3 text-slate-500" />
-                          <span>{tx.timestamp}</span>
-                        </td>
-                        <td className="py-3.5 px-4 font-bold text-blue-400">
-                          <span className="hover:underline cursor-pointer flex items-center gap-1">
-                            {tx.txHash.slice(0, 10)}...{tx.txHash.slice(-6)}
-                            <ExternalLink className="w-3 h-3 opacity-60" />
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-4 text-white font-semibold whitespace-nowrap">
-                          {tx.type}
-                        </td>
-                        <td className="py-3.5 px-4 text-slate-300 whitespace-nowrap">
-                          {tx.asset}
-                        </td>
-                        <td className="py-3.5 px-4 text-right font-bold text-white font-tabular whitespace-nowrap">
-                          {tx.valueUsd}
-                        </td>
-                        <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap">
-                          {tx.sourceRef}
-                        </td>
-                        <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                          <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold border border-emerald-500/20">
-                            {tx.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {PLATFORM_ACTIVITY_DATA.map((ev, idx) => {
+                      const cat = CATEGORY_ACCENT[ev.category] ?? CATEGORY_ACCENT.Settlement;
+                      return (
+                        <tr key={idx} className="hover:bg-[#0e1324] transition-colors align-top">
+                          {/* Live status */}
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            {ev.live ? (
+                              <span className="inline-flex items-center gap-1.5 text-emerald-400">
+                                <span className="relative flex h-2 w-2">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                                </span>
+                                <span className="text-[10px] font-bold uppercase">Live</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 text-slate-500">
+                                <span className="w-2 h-2 rounded-full bg-slate-600" />
+                                <span className="text-[10px] uppercase">Sealed</span>
+                              </span>
+                            )}
+                          </td>
+                          {/* Timestamp */}
+                          <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap">
+                            <span className="inline-flex items-center gap-1.5">
+                              <Clock className="w-3 h-3 text-slate-500" />
+                              {ev.timestamp}
+                            </span>
+                          </td>
+                          {/* Event ID */}
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            <span className="inline-flex items-center gap-1 text-blue-300 font-bold hover:underline cursor-pointer">
+                              <Hash className="w-3 h-3 opacity-70" />
+                              {ev.eventId}
+                            </span>
+                          </td>
+                          {/* Category */}
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            <span className={`px-2 py-0.5 rounded border text-[10px] font-bold uppercase ${cat.bg} ${cat.text} ${cat.border}`}>
+                              {ev.category}
+                            </span>
+                          </td>
+                          {/* Event / Detail */}
+                          <td className="py-3.5 px-4 min-w-[240px]">
+                            <div className="text-white font-semibold">{ev.type}</div>
+                            <div className="text-[10px] text-slate-500 mt-0.5">{ev.detail}</div>
+                          </td>
+                          {/* Value */}
+                          <td className="py-3.5 px-4 text-right font-bold text-white font-tabular whitespace-nowrap">
+                            {ev.valueUsd}
+                          </td>
+                          {/* Source */}
+                          <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap">
+                            {ev.source}
+                          </td>
+                          {/* Verification */}
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold border border-emerald-500/20">
+                              <BadgeCheck className="w-3 h-3" />
+                              {ev.verification}
+                            </span>
+                          </td>
+                          {/* Audit Ref */}
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            <span className="inline-flex items-center gap-1 text-slate-300 hover:text-blue-300 cursor-pointer">
+                              {ev.auditRef}
+                              <ExternalLink className="w-3 h-3 opacity-60" />
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
