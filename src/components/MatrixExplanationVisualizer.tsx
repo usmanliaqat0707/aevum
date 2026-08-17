@@ -206,7 +206,7 @@ export const MatrixExplanationVisualizer: React.FC = () => {
 
           {/* Graph stage — fixed ratio so the 1000×640 coordinate space maps to node percentages */}
           <div
-            className="relative w-full aspect-[5/3] min-h-[520px] sm:min-h-[600px] select-none"
+            className="relative w-full aspect-[25/16] min-h-[460px] select-none"
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             style={{ perspective: '1400px' }}
@@ -217,7 +217,9 @@ export const MatrixExplanationVisualizer: React.FC = () => {
               style={{ transformStyle: 'preserve-3d', transition: 'transform 0.25s ease-out', willChange: 'transform' }}
             >
               {/* -------- Glowing connection + animated flow layer -------- */}
-              <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="xMidYMid meet" className="absolute inset-0 w-full h-full pointer-events-none">
+              {/* preserveAspectRatio="none" makes SVG coords map linearly to the container,
+                  so edges stay perfectly aligned with the percentage-positioned node cards. */}
+              <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
                 {EDGES.map((e) => {
                   const from = nodeById[e.from];
                   const to = nodeById[e.to];
