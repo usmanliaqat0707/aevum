@@ -18,6 +18,7 @@ import { RequestAccessModal } from './components/Modals/RequestAccessModal';
 import { SecurityAuditModal } from './components/Modals/SecurityAuditModal';
 import { ScreenshotExportModal } from './components/ScreenshotExportModal';
 import { FloatingScreenshotWidget } from './components/FloatingScreenshotWidget';
+import { AmbientBackground } from './components/AmbientBackground';
 
 export default function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -36,6 +37,9 @@ export default function App() {
       
       {/* Background Interactive Ambient Canvas */}
       <LiquidityBackgroundCanvas interactive={true} />
+
+      {/* Global ambient depth: subtle gradients, glow, grain, particles, grid, blurred forms */}
+      <AmbientBackground />
 
       {/* Global Persistent Sticky Navbar */}
       <Navbar
